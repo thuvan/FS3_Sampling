@@ -3,6 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="FS3_Sampling" />
+		<Option makefile="makefile" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -11,8 +12,11 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option parameters="-d ./dataset/GRAPH_int_toy2.data -c 10 -s 2" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="D:/Temp/boost_1_60_0/" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -22,6 +26,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -31,6 +36,29 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="README" />
+		<Unit filename="StringTokenizer.cpp" />
+		<Unit filename="StringTokenizer.h" />
+		<Unit filename="StringTokenizer.h.gch" />
+		<Unit filename="adj_matrix.h" />
+		<Unit filename="database.h" />
+		<Unit filename="element_parser.h" />
+		<Unit filename="graph_can_code.h" />
+		<Unit filename="graph_iso_check.h" />
+		<Unit filename="helper_funs.h" />
+		<Unit filename="lattice_node.h" />
+		<Unit filename="makefile" />
+		<Unit filename="matrix_base.cpp" />
+		<Unit filename="matrix_base.h" />
+		<Unit filename="matrix_base.h.gch" />
+		<Unit filename="pattern.h" />
+		<Unit filename="pattern_factory.h" />
+		<Unit filename="random.cpp" />
+		<Unit filename="random.h" />
+		<Unit filename="random.h.gch" />
+		<Unit filename="subgraph_iso.h" />
+		<Unit filename="uniform_freq.cpp" />
+		<Unit filename="uniform_subgraph_random_walk.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

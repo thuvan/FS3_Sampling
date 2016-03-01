@@ -21,7 +21,7 @@ class PatternFactory {
     typedef typename DATABASE::EDGE_INFO_MAP EDGE_INFO_MAP;
     typedef typename DATABASE::INFO_CIT INFO_CIT;
 
-		/*! \fn static PatternFactory<PAT>* instance(DATABASE* d) 
+		/*! \fn static PatternFactory<PAT>* instance(DATABASE* d)
  		*  \brief A member function to set _instance private member.
  		*  \param d a pointer of Database class object.
 		*  \return a pointer of PatternFactory object.
@@ -31,9 +31,9 @@ class PatternFactory {
         _instance = new PatternFactory<PAT>(d);
       }
       return _instance;
-    }  
+    }
 
-		/*! \fn PAT* make_single_edge_pattern(V_T src, V_T dest, E_T e) 
+		/*! \fn PAT* make_single_edge_pattern(V_T src, V_T dest, E_T e)
  		*  \brief A member function to make pattern of size one.
  		*  \param src,dest a V_T type.
 		*  \param e a E_T type.
@@ -41,7 +41,7 @@ class PatternFactory {
  		*/
     PAT* make_single_edge_pattern(V_T src, V_T dest, E_T e) {
       vector<V_T> vlabels(2);
-      if (src < dest) { 
+      if (src < dest) {
         vlabels[0] = src;
         vlabels[1] = dest;
       }
@@ -52,7 +52,7 @@ class PatternFactory {
       PAT* p = new PAT(vlabels);
       p->add_edge(0,1,e);
       EDGE edge = make_pair(make_pair(vlabels[0], vlabels[1]), e);
-      const vector<int>& vat = _d->get_edge_vat(edge); 
+      const vector<int>& vat = _d->get_edge_vat(edge);
       p->set_vat(vat);
       p->set_sup_status(0);
       int minsup = _d->get_minsup();
@@ -63,7 +63,7 @@ class PatternFactory {
 
     // precondition: given pattern is entirely consistent with correct support count
     // and support list
-		/*! \fn PAT* pattern_with_edge_removed(PAT* p, const int& a, const int& b) 
+		/*! \fn PAT* pattern_with_edge_removed(PAT* p, const int& a, const int& b)
  		*  \brief A member function returning a pattern after removing an edge.
  		*  \param a,b a constant reference of integer.
 		 		*  \param p a pointer of PAT .
@@ -79,7 +79,7 @@ class PatternFactory {
       cout << endl;
 #endif
       PAT* clone = p->clone();
-      EDGE edge = clone->remove_edge(a,b); 
+      EDGE edge = clone->remove_edge(a,b);
 
       // now support list needs to be updated
       _d->get_exact_sup_from_super_pat_vat(clone);
@@ -99,6 +99,20 @@ class PatternFactory {
       return extend_until_max(cand_pat, minsup);
       cand_pat->set_freq();
     }
+    PAT* extend_until_p(PAT*& cand_pat, int p){
+      //int cur_size =
+      int v_count = 2;
+    }
+
+
+    PAT* get_random_subgraph(int size){
+      ///TODO: not implemented
+      PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
+      //extend the one_edge
+
+
+
+    }
 
     PAT* get_one_random_maximal_pattern() {
       PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
@@ -107,7 +121,7 @@ class PatternFactory {
       cand_pat->set_freq();
     }
 
-		/*! \fn PAT* get_one_frequent_pattern() 
+		/*! \fn PAT* get_one_frequent_pattern()
  		*  \brief A member function to get a frequent pattern of size one.
 		*  \return Pattern type pointer.
  		*/
@@ -116,8 +130,8 @@ class PatternFactory {
       PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
       return cand_pat;
     }
-		
-		/*! \fn PAT* get_one_random_one_edge_frequent_pattern() 
+
+		/*! \fn PAT* get_one_random_one_edge_frequent_pattern()
  		*  \brief A member function to get a random frequent pattern of size one.
 		*  \return Pattern type pointer.
  		*/
@@ -131,7 +145,7 @@ class PatternFactory {
     }
 
 
-		/*! \fn int get_super_degree(PAT*& pat) 
+		/*! \fn int get_super_degree(PAT*& pat)
  		*  \brief A member function to count sub degree of a pattern.
 		* This method first find all possible removable edges from a current pattern.Number of removable edges count is the sub degree.
 		*  \param pat a pointer of PAT type.
@@ -153,7 +167,7 @@ class PatternFactory {
       return re.size();
     }
 
-		/*! \fn void get_sub_patterns(PAT* pat, vector<PAT*>& sub_patterns) 
+		/*! \fn void get_sub_patterns(PAT* pat, vector<PAT*>& sub_patterns)
  		*  \brief A member function to generates all sub patterns of a pattern by removing an edge.
 		*  \param pat a pointer of PAT type.
 		*  \param sub_patterns a reference of a PAT* vector.
@@ -185,7 +199,7 @@ class PatternFactory {
       }
     }
 
-		/*! \fn int get_super_degree(const PAT* pat) 
+		/*! \fn int get_super_degree(const PAT* pat)
  		*  \brief A member function to calculate super degree of a pattern.
 		* This method first find all possible single extension(forward and backward) from a current pattern. For each
 		* extension it counts the number of feasible frequent super pattern(current + extension).
@@ -193,36 +207,36 @@ class PatternFactory {
 
 		* \return integer
  		*/
- 
+
     int get_super_degree(const PAT* pat) {
 #ifdef PRINT
       cout<<"In call to get_super_degree" << endl;
 #endif
-    
+
       PAT* edge=0;
       PAT* cand_pat=0;
       int ret_val=0;
-    
+
       EDGE this_edge;
       typedef map<EDGE, int> EDGE_FREQ;
       typedef typename EDGE_FREQ::const_iterator F_CIT;
       typedef map<std::string, int > ALL_PAT;
       typedef typename ALL_PAT::iterator APIT;
       int minsup = _d->get_minsup();
-      
+
       if (pat->size() == 0) {
         const EDGE_INFO_MAP& eim = _d->get_all_edge_info();
         return eim.size();
       }
       for (int vid=0; vid<pat->size(); vid++) {  // extentions from all vertices
-      
-        V_T src_v=pat->label(vid);  
+
+        V_T src_v=pat->label(vid);
 #ifdef PRINT
         cout << "Extending from vertex-id:" << vid << " with label:" << src_v << endl;
 #endif
-    
+
         const typename DATABASE::NEIGHBORS& nbrs=_d->get_neighbors(src_v);
-     
+
         typename DATABASE::NCIT nit = nbrs.begin();
         for(;nit != nbrs.end();nit++) {
           V_T dest_v = nit->first;
@@ -230,16 +244,16 @@ class PatternFactory {
 
           if (src_v < dest_v)
             this_edge = make_pair(make_pair(src_v, dest_v), e_label);
-          else 
+          else
             this_edge = make_pair(make_pair(dest_v, src_v), e_label);
           int frequency = pat->edge_counter(this_edge);
           int max_freq = _d->get_freq(this_edge);
           if (frequency > max_freq) {
             continue;
           }
- 
+
           edge = make_single_edge_pattern(src_v, dest_v, e_label);
-    
+
           // trying fwd-extension from this vertex
           cand_pat = pat->clone();
           int lvid = cand_pat->add_vertex(dest_v);
@@ -251,7 +265,7 @@ class PatternFactory {
           else {
             bool freq = _d->get_exact_sup_optimal(cand_pat);
             if (freq == true) { // is the pattern frequent?
-#ifdef PRINT    
+#ifdef PRINT
           //    cout << *cand_pat << endl;
 #endif
               delete cand_pat;
@@ -261,17 +275,17 @@ class PatternFactory {
               delete cand_pat;
             }
           }
-          // now trying all the possible back-edges 
+          // now trying all the possible back-edges
           vector<int> dest_vids;
           pat->get_vids_for_this_label(dest_v, dest_vids);
-          vector<int>::iterator vit = dest_vids.begin(); 
+          vector<int>::iterator vit = dest_vids.begin();
           while (vit < dest_vids.end()) {
             if (*vit <= vid || pat->edge_exist(vid, *vit))
               vit = dest_vids.erase(vit);
-            else 
+            else
     	      ++vit;
           }
-       
+
           for (vector<int>::iterator it= dest_vids.begin(); it < dest_vids.end(); it++) {
             cand_pat = pat->clone();
             cand_pat->add_edge(vid, *it, e_label);
@@ -282,7 +296,7 @@ class PatternFactory {
             else {
               bool freq = _d->get_exact_sup_optimal(cand_pat);
               if (freq == true) { // is the pattern frequent?
-#ifdef PRINT    
+#ifdef PRINT
            //     cout << *cand_pat << endl;
 #endif
                 delete cand_pat;
@@ -292,19 +306,39 @@ class PatternFactory {
                 delete cand_pat;
               }
             }
-          } 
+          }
           delete edge;
           edge = 0;
-        } 
+        }
       }
      // cout << "Returning from get_super_degree" << endl;
       return ret_val;
     }
 
+    void get_neighbors_subgraph(const PAT* pat, vector<PAT*>& super_patterns) {
+#ifdef PRINT
+      cout<<"In call to get_all_frequent_super_pattern\n";
+#endif
+
+      PAT* edge=0;
+      PAT* cand_pat=0;
+
+      EDGE this_edge;
+      typedef map<EDGE, int> EDGE_FREQ;
+      typedef typename EDGE_FREQ::const_iterator F_CIT;
+      typedef map<std::string, int > ALL_PAT;
+      typedef typename ALL_PAT::iterator APIT;
+      int subgraph_size = _d->get_subgraph_size();
+
+      ///TODO: not implemented
+
+
+    }
+
 			/*! \fn void get_freq_super_patterns(const PAT* pat, vector<PAT*>& super_patterns)
  		*  \brief A member function to generate super pattern of a pattern.
 		* This method first find all possible single extension(forward and backward) from a current pattern. For each
-		* extension it creates all frequent new pattern(current + extension). 
+		* extension it creates all frequent new pattern(current + extension).
 		*  \param pat a constant pointer of PAT.
 		*  \param super_patterns a reference of a PAT* vector.
 		* \return integer
@@ -313,55 +347,55 @@ class PatternFactory {
 #ifdef PRINT
       cout<<"In call to get_all_frequent_super_pattern\n";
 #endif
-    
+
       PAT* edge=0;
       PAT* cand_pat=0;
-    
+
       EDGE this_edge;
       typedef map<EDGE, int> EDGE_FREQ;
       typedef typename EDGE_FREQ::const_iterator F_CIT;
       typedef map<std::string, int > ALL_PAT;
       typedef typename ALL_PAT::iterator APIT;
       int minsup = _d->get_minsup();
-      
+
       if (pat->size() == 0) {
         const EDGE_INFO_MAP& eim = _d->get_all_edge_info();
         INFO_CIT cit;
         for (cit = eim.begin(); cit != eim.end(); cit++) {
           PAT* p = make_single_edge_pattern(cit->first.first.first, cit->first.first.second, cit->first.second);
-          super_patterns.push_back(p); 
+          super_patterns.push_back(p);
         }
         return;
       }
 
       for (int vid=0; vid<pat->size(); vid++) {  // extentions from all vertices
-      
-        V_T src_v=pat->label(vid);  
+
+        V_T src_v=pat->label(vid);
 #ifdef PRINT
         cout << "Extending from vertex-id:" << vid << " with label:" << src_v << endl;
 #endif
-    
+
         const typename DATABASE::NEIGHBORS& nbrs=_d->get_neighbors(src_v);
-     
+
         typename DATABASE::NCIT nit = nbrs.begin();
         for(;nit != nbrs.end();nit++) {
           V_T dest_v = nit->first;
           E_T e_label = nit->second;
 #ifdef PRINT
         cout << "Extending to vertex-id:" << dest_v << " with edge label:" << e_label <<nbrs.size()<< endl;
-#endif					
+#endif
           if (src_v < dest_v)
             this_edge = make_pair(make_pair(src_v, dest_v), e_label);
-          else 
+          else
             this_edge = make_pair(make_pair(dest_v, src_v), e_label);
           int frequency = pat->edge_counter(this_edge);
           int max_freq = _d->get_freq(this_edge);
           if (frequency > max_freq) {
             continue;
           }
- 
+
           edge = make_single_edge_pattern(src_v, dest_v, e_label);
-    
+
           // trying fwd-extension from this vertex
           cand_pat = pat->clone();
           int lvid = cand_pat->add_vertex(dest_v);
@@ -373,7 +407,7 @@ class PatternFactory {
           else {
             bool freq = _d->get_exact_sup_optimal(cand_pat);
             if (freq == true) { // is the pattern frequent?
-#ifdef PRINT    
+#ifdef PRINT
               cout << *cand_pat << endl;
 #endif
               super_patterns.push_back(cand_pat);
@@ -382,17 +416,17 @@ class PatternFactory {
               delete cand_pat;
             }
           }
-          // now trying all the possible back-edges 
+          // now trying all the possible back-edges
           vector<int> dest_vids;
           pat->get_vids_for_this_label(dest_v, dest_vids);
-          vector<int>::iterator vit = dest_vids.begin(); 
+          vector<int>::iterator vit = dest_vids.begin();
           while (vit < dest_vids.end()) {
             if (*vit <= vid || pat->edge_exist(vid, *vit))
               vit = dest_vids.erase(vit);
-            else 
+            else
     	      ++vit;
           }
-       
+
           for (vector<int>::iterator it= dest_vids.begin(); it < dest_vids.end(); it++) {
             cand_pat = pat->clone();
             cand_pat->add_edge(vid, *it, e_label);
@@ -403,7 +437,7 @@ class PatternFactory {
             else {
               bool freq = _d->get_exact_sup_optimal(cand_pat);
               if (freq == true) { // is the pattern frequent?
-#ifdef PRINT    
+#ifdef PRINT
                 cout << *cand_pat << endl;
 #endif
                 super_patterns.push_back(cand_pat);
@@ -412,15 +446,15 @@ class PatternFactory {
                 delete cand_pat;
               }
             }
-          } 
+          }
           delete edge;
           edge = 0;
-        } 
+        }
       }
       // sometimes few neighbors are actually unique, need to check that
       set<std::string> codes;
       for (int i=0; i < super_patterns.size();) {
-        
+
         check_isomorphism(super_patterns[i]);
         std::string cc_str = super_patterns[i]->get_canonical_code().to_string();
         pair<set<std::string>::iterator, bool> ret_val = codes.insert(cc_str);
@@ -428,7 +462,7 @@ class PatternFactory {
           delete super_patterns[i];
           super_patterns.erase(super_patterns.begin()+i);
         }
-        else 
+        else
           i++;
       }
     }
@@ -444,10 +478,10 @@ class PatternFactory {
     PatternFactory(DATABASE* d) {
       _d = d;
     }
-   
+
   private:
 
-  // find exact support list after joining 
+  // find exact support list after joining
   bool update_vat(PAT* pat) const {
     bool is_freq = _d->get_exact_sup(pat);
     if (is_freq ==false) return false;

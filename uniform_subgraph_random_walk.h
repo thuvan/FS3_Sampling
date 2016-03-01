@@ -1,6 +1,6 @@
 //! \file random_walk_manager_freq.h - class to perform the random walk
-#ifndef _RANDOM_WALK_MANAGER2_H_
-#define _RANDOM_WALK_MANAGER2_H_
+#ifndef _RANDOM_SUBGRAPH_WALK_MANAGER2_H_
+#define _RANDOM_SUBGRAPH_WALK_MANAGER2_H_
 
 #include <algorithm>
 #include <ext/hash_set>
@@ -18,7 +18,7 @@
  */
 //! A RandomWalkManager_Freq template class.
 template<class PAT>
-class Uniform_Freq_Random_Walk
+class Uniform_SubGraph_Random_Walk
 {
 
   public:
@@ -34,11 +34,12 @@ class Uniform_Freq_Random_Walk
   typedef PatternFactory<PAT> PATTERN_FACTORY;
 
 	//! Constructor
-  Uniform_Freq_Random_Walk(DATABASE* d, int iter) {
+  Uniform_SubGraph_Random_Walk(DATABASE* d,int graph_id, int subgraph_size) {
     _last = 0;
     _pf = PATTERN_FACTORY::instance(d);
-    _maxiter = iter;
-    cout << "Iteration count:" << _maxiter << endl;
+    _subgraph_size=subgraph_size;
+    _graph_id = graph_id;
+    cout << "Create a random walk manager for graph id:" << _graph_id << endl;
   }
 
 	//! get PatternFactory object
@@ -53,20 +54,16 @@ class Uniform_Freq_Random_Walk
  		*  \return a pointer of LATTICE_NODE type.
  		*/
   LATTICE_NODE* initialize() {
-
-    PAT* p =_pf->get_one_random_one_edge_frequent_pattern();
-
+    PAT* p =_pf->get_random_subgraph(_subgraph_size);
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
     p->set_canonical_code(cc);
     cout << p->get_canonical_code().to_string() << endl;
-    if (p->_is_frequent==false) {
-      cout << "ERROR:this pattern is infrquent\n";
-      exit(1);
-    }
+
     LATTICE_NODE* ln = create_lattice_node(p);
     process_node(ln);
     return ln;
   }
+
 
 	/*! \fn void walk(LATTICE_NODE* current, int &iter)
  		*  \brief A member function to do the random walk on itemset Lattice. Walk continues until
@@ -76,47 +73,47 @@ class Uniform_Freq_Random_Walk
 		*	\param current a pointer of LATTICE_NODE.
 		* \param iter a reference of an integer
 	*/
-    bool walk(LATTICE_NODE* current, int &iter) {
-
-    int step = 1;
-    while (true) {
-      process_node(current);
-			if(current->_neighbors.size()==0)// if current has no neighbors return and start over again.
-			{
-				return 0;
-			}
-      PAT* p = current->_pat;
-      if (iter >= _maxiter) {
-				tt.stop();
-				cout<< "time taken="<<tt.print()<<endl;
-        cout << "Dist:";
-        FC_IT fit;
-        for (fit = _freq_cnt.begin(); fit != _freq_cnt.end(); fit++) {
-          cout << fit->first << "(" << fit->second << ")" << endl;
-        }
-        cout << "maxiter:" << _maxiter << " iter:" << iter << " Returing from here" << endl;
-        return 1;
-      }
-
-      if (step >=10) {  // assuming after 10 steps, the walk mixes to uniformity
-        iter++;
-        string cc = p->get_canonical_code().to_string();
-        FC_IT fit = _freq_cnt.find(cc);
-        if (fit != _freq_cnt.end()) {
-          fit->second++;
-        }
-        else {
-          _freq_cnt.insert(make_pair(cc, 1));
-          cout << "Iter:" << iter << " Total sampled:" << _freq_cnt.size() << " Total traversed:" << _node_map.size() << endl;
-        }
-      }
-      // cout << "In walk: looking for new node to visit" << endl;
-      LATTICE_NODE* next = get_next(current);
-      _last = p;
-      current = next;
-      step++;
-    }
-  }
+// 	bool walk(LATTICE_NODE* current, int &iter) {
+//
+//    int step = 1;
+//    while (true) {
+//      process_node(current);
+//			if(current->_neighbors.size()==0)// if current has no neighbors return and start over again.
+//			{
+//				return 0;
+//			}
+//      PAT* p = current->_pat;
+//      if (iter >= _maxiter) {
+//				tt.stop();
+//				cout<< "time taken="<<tt.print()<<endl;
+//        cout << "Dist:";
+//        FC_IT fit;
+//        for (fit = _freq_cnt.begin(); fit != _freq_cnt.end(); fit++) {
+//          cout << fit->first << "(" << fit->second << ")" << endl;
+//        }
+//        cout << "maxiter:" << _maxiter << " iter:" << iter << " Returing from here" << endl;
+//        return 1;
+//      }
+//
+//      if (step >=10) {  // assuming after 10 steps, the walk mixes to uniformity
+//        iter++;
+//        string cc = p->get_canonical_code().to_string();
+//        FC_IT fit = _freq_cnt.find(cc);
+//        if (fit != _freq_cnt.end()) {
+//          fit->second++;
+//        }
+//        else {
+//          _freq_cnt.insert(make_pair(cc, 1));
+//          cout << "Iter:" << iter << " Total sampled:" << _freq_cnt.size() << " Total traversed:" << _node_map.size() << endl;
+//        }
+//      }
+//      // cout << "In walk: looking for new node to visit" << endl;
+//      LATTICE_NODE* next = get_next(current);
+//      _last = p;
+//      current = next;
+//      step++;
+//    }
+//  }
 
 	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
  		*  \brief A member function to get next node on itemset lattice to jump from current.
@@ -203,16 +200,16 @@ class Uniform_Freq_Random_Walk
   void process_node(LATTICE_NODE* n) {
     if (n->_is_processed) return;
     PAT* p = n->_pat;
-    assert(p->get_sup_ok() == 0);
+    //assert(p->get_sup_ok() == 0);
 //#ifdef PRINT
     cout << "Current pattern:\n";
     cout << *p;
 //#endif
     vector<PAT*> neighbors;
+    _pf->get_neighbors_subgraph(p, neighbors);
+    //_pf->get_freq_super_patterns(p, neighbors);
 
-    _pf->get_freq_super_patterns(p, neighbors);
-
-		_pf->get_sub_patterns(p, neighbors);
+		//_pf->get_sub_patterns(p, neighbors);
 #ifdef PRINT
     cout << "Its neighbors:" << endl;
    cout << "Total neighbors="<< neighbors.size() << endl;
@@ -242,9 +239,11 @@ class Uniform_Freq_Random_Walk
   FREQ_CNT_MAP _freq_cnt; //!< store all sampled frequent itemset patterns.
   NODE_MAP _node_map;	//!< store all lattice node.
   PatternFactory<PAT>* _pf;//!< a PatternFactory object
-  int _maxiter;//!< store maximum number of iteration.
+  //int _maxiter;//!< store maximum number of iteration.
   PAT* _last;//!< store last node of the random walk.
   time_tracker tt;
+  int _graph_id;
+  int _subgraph_size;
 };
 
 #endif
