@@ -4672,3 +4672,89 @@
 	<iostream>
 	<string>
 
+1314833556 source:d:\temp\fs3_sampling\uniform_freq.cpp
+	<iostream>
+	"database.h"
+	"uniform_freq_random_walk.h"
+
+1314566484 d:\temp\fs3_sampling\database.h
+	<fstream>
+	<exception>
+	<iostream>
+	<map>
+	"pattern.h"
+	"element_parser.h"
+	"StringTokenizer.h"
+	"subgraph_iso.h"
+	"graph_iso_check.h"
+	"random.h"
+
+1456640043 d:\temp\fs3_sampling\pattern.h
+	"adj_matrix.h"
+	"graph_can_code.h"
+	<algorithm>
+
+1314640676 d:\temp\fs3_sampling\adj_matrix.h
+	<map>
+	<ext/hash_map>
+	<set>
+	<algorithm>
+	<iterator>
+	"helper_funs.h"
+	"matrix_base.h"
+
+1313080706 d:\temp\fs3_sampling\helper_funs.h
+	<functional>
+	<cstring>
+
+1314640212 d:\temp\fs3_sampling\graph_can_code.h
+	<string>
+	<sstream>
+	<vector>
+	<set>
+	<ext/hash_map>
+	"helper_funs.h"
+
+1313080704 d:\temp\fs3_sampling\element_parser.h
+	<sstream>
+	"helper_funs.h"
+
+1314657804 d:\temp\fs3_sampling\subgraph_iso.h
+	"adj_matrix.h"
+
+1314658216 d:\temp\fs3_sampling\graph_iso_check.h
+	<vector>
+	<set>
+	<map>
+	<iostream>
+	<algorithm>
+	<ext/hash_map>
+	"element_parser.h"
+
+1314902528 d:\temp\fs3_sampling\uniform_freq_random_walk.h
+	<algorithm>
+	<ext/hash_set>
+	<ext/hash_map>
+	"helper_funs.h"
+	"pattern_factory.h"
+	"lattice_node.h"
+	"random.h"
+	"time_tracker.h"
+	"functional"
+
+1314894512 d:\temp\fs3_sampling\pattern_factory.h
+	"pattern.h"
+	"database.h"
+	"graph_iso_check.h"
+
+1314591754 d:\temp\fs3_sampling\lattice_node.h
+	<ext/hash_set>
+	"graph_iso_check.h"
+	<algorithm>
+	"helper_funs.h"
+	"pattern_factory.h"
+
+1223829164 d:\temp\fs3_sampling\time_tracker.h
+	<sys/time.h>
+	<unistd.h>
+

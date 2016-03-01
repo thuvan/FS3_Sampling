@@ -11,7 +11,7 @@ int uniq_pat_count;
 int max_iter;
 
 typedef ExPattern<int, int> PAT;
-template<> vector<int> Database<PAT>::_no_data = Database<PAT>::set_static_data();    
+template<> vector<int> Database<PAT>::_no_data = Database<PAT>::set_static_data();
 template<> PatternFactory<PAT>* PatternFactory<PAT>::_instance = PatternFactory<PAT>::set_static_data();
 //template<> PatternFactory<PAT>::set_static_data();
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     database->set_minsup(minsup);
   }
   catch (exception& e) {
-    
+
     cout << e.what() << endl;
   }
   database->remove_infrequent_edges();
@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
   /* creating random_walk_manager and starting walk */
   Uniform_Freq_Random_Walk<PAT> rwm(database, max_iter);
   int cur_iter=0;
-	
+
 	//will call initialize followed by walk again and again until it gets a single edge pattern with some neighbors.
 	do {
-			lattice_node<PAT>* start = rwm.initialize();      
-			zero_neighbors = rwm.walk(start,cur_iter);
-    } while (zero_neighbors == 0);
+    lattice_node<PAT>* start = rwm.initialize();
+    zero_neighbors = rwm.walk(start,cur_iter);
+  } while (zero_neighbors == 0);
   delete database;
 }

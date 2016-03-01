@@ -40,22 +40,22 @@ class Uniform_Freq_Random_Walk
     _maxiter = iter;
     cout << "Iteration count:" << _maxiter << endl;
   }
-	
+
 	//! get PatternFactory object
   PatternFactory<PAT>* get_pat_factory() const {
     return _pf;
   }
 
   // random walk manager initialize with a frequent pattern node
-	/*! \fn LATTICE_NODE* initialize() 
+	/*! \fn LATTICE_NODE* initialize()
  		*  \brief A member function to initialize the walk in itemset Lattice. Initialization completed
 		*		by selecting an size one frequent pattern.
  		*  \return a pointer of LATTICE_NODE type.
  		*/
   LATTICE_NODE* initialize() {
-		
+
     PAT* p =_pf->get_one_random_one_edge_frequent_pattern();
-    
+
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
     p->set_canonical_code(cc);
     cout << p->get_canonical_code().to_string() << endl;
@@ -68,22 +68,22 @@ class Uniform_Freq_Random_Walk
     return ln;
   }
 
-	/*! \fn void walk(LATTICE_NODE* current, int &iter) 
+	/*! \fn void walk(LATTICE_NODE* current, int &iter)
  		*  \brief A member function to do the random walk on itemset Lattice. Walk continues until
 		* iteration count hits maximum number of iteration. From a current node this method selects
-		* next node to jump based on acceptance probability calculated by Metropolis-Hastings 
+		* next node to jump based on acceptance probability calculated by Metropolis-Hastings
 		* algorithm.
 		*	\param current a pointer of LATTICE_NODE.
-		* \param iter a reference of an integer 
+		* \param iter a reference of an integer
 	*/
- 	bool walk(LATTICE_NODE* current, int &iter) {
+    bool walk(LATTICE_NODE* current, int &iter) {
 
     int step = 1;
     while (true) {
       process_node(current);
 			if(current->_neighbors.size()==0)// if current has no neighbors return and start over again.
 			{
-				return 0;						
+				return 0;
 			}
       PAT* p = current->_pat;
       if (iter >= _maxiter) {
@@ -94,7 +94,7 @@ class Uniform_Freq_Random_Walk
         for (fit = _freq_cnt.begin(); fit != _freq_cnt.end(); fit++) {
           cout << fit->first << "(" << fit->second << ")" << endl;
         }
-        cout << "maxiter:" << _maxiter << " iter:" << iter << " Returing from here" << endl;				
+        cout << "maxiter:" << _maxiter << " iter:" << iter << " Returing from here" << endl;
         return 1;
       }
 
@@ -118,16 +118,16 @@ class Uniform_Freq_Random_Walk
     }
   }
 
-	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const 
- 		*  \brief A member function to get next node on itemset lattice to jump from current. 
-		*	 Acceptance probability calculation of Metropolis-Hastings 
+	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
+ 		*  \brief A member function to get next node on itemset lattice to jump from current.
+		*	 Acceptance probability calculation of Metropolis-Hastings
 		* algorithm is implemented here.
 		*	\param current a pointer of LATTICE_NODE.
-		* \return a pointer of LATTICE_NODE. 
+		* \return a pointer of LATTICE_NODE.
 	*/
   LATTICE_NODE* get_next(LATTICE_NODE* current) const {
     int total=current->_neighbor_prob.size();
-#ifdef PRINT 
+#ifdef PRINT
    std::copy(current->_neighbor_prob.begin(), current->_neighbor_prob.end(), ostream_iterator<double>(cout," "));
     cout << endl;
 #endif
@@ -146,16 +146,16 @@ class Uniform_Freq_Random_Walk
     do {
       idx = randomWithDiscreteProbability(prob);
     } while (idx == total);
-//    cout << "returning with:" << idx << endl; 
+//    cout << "returning with:" << idx << endl;
     return current->_neighbors[idx];
   }
 
-	/*! \fn LATTICE_NODE* create_lattice_node(PAT*& p) 
- 		*  \brief A member function to create a new lattice node. 
+	/*! \fn LATTICE_NODE* create_lattice_node(PAT*& p)
+ 		*  \brief A member function to create a new lattice node.
 		*	 It first check whether the pattern p come as parameter is already a lattice node from its canonical code.
-		*	 If not a new lattice node is created.  
+		*	 If not a new lattice node is created.
 		*	\param p a reference of a pointer of PAT.
-		* \return a pointer of LATTICE_NODE 
+		* \return a pointer of LATTICE_NODE
 	*/
   LATTICE_NODE* create_lattice_node(PAT*& p) {
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
@@ -175,8 +175,8 @@ class Uniform_Freq_Random_Walk
     return node;
   }
 
-	/*! \fn LATTICE_NODE* exists(string p) 
- 		*  \brief A member function to check exixtance of a lattice node. 
+	/*! \fn LATTICE_NODE* exists(string p)
+ 		*  \brief A member function to check exixtance of a lattice node.
 		*	\param p a string.
 		* \return a pointr of LATTICE_NODE.
 	*/
@@ -185,8 +185,8 @@ class Uniform_Freq_Random_Walk
     return (it != _node_map.end())? it->second : 0;
   }
 
-	/*! \fn void insert_lattice_node(string p, LATTICE_NODE* ln) 
- 		*  \brief A member function to store newly created lattice node. 
+	/*! \fn void insert_lattice_node(string p, LATTICE_NODE* ln)
+ 		*  \brief A member function to store newly created lattice node.
 		*	\param p a string.
 		* \param ln a pointer of LATTICE_NODE.
 	*/
@@ -194,10 +194,10 @@ class Uniform_Freq_Random_Walk
     _node_map.insert(make_pair(p, ln));
   }
 
-	/*! \fn void process_node(LATTICE_NODE* n) 
+	/*! \fn void process_node(LATTICE_NODE* n)
  		*  \brief A member function to process a lattice node.
-		* This function generates all frequent super and sub patterns of a processed node (n).	
-		* It also perform the degree calculation of n as well as of all minned super and sup patterns. 
+		* This function generates all frequent super and sub patterns of a processed node (n).
+		* It also perform the degree calculation of n as well as of all minned super and sup patterns.
 		*	\param n a LATTICE_NODE pointer
 	*/
   void process_node(LATTICE_NODE* n) {
@@ -209,12 +209,12 @@ class Uniform_Freq_Random_Walk
     cout << *p;
 //#endif
     vector<PAT*> neighbors;
-		
-    _pf->get_freq_super_patterns(p, neighbors); 
-		    
-		_pf->get_sub_patterns(p, neighbors); 
+
+    _pf->get_freq_super_patterns(p, neighbors);
+
+		_pf->get_sub_patterns(p, neighbors);
 #ifdef PRINT
-    cout << "Its neighbors:" << endl;   
+    cout << "Its neighbors:" << endl;
    cout << "Total neighbors="<< neighbors.size() << endl;
 #endif
    for (int i=0; i<neighbors.size(); i++) {
@@ -231,10 +231,10 @@ class Uniform_Freq_Random_Walk
       int status;
       n->_neighbors.push_back(ln);
       n->_neighbor_prob.push_back(prob);
-        
+
       const typename PAT::CAN_CODE& cc = check_isomorphism(one_neighbor);
       one_neighbor->set_canonical_code(cc);
-    }  
+    }
     n->_is_processed=true;
   }
 
