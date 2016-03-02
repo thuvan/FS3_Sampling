@@ -105,14 +105,23 @@ class PatternFactory {
     }
 
 
-    PAT* get_random_subgraph(int size){
+  PAT* get_random_subgraph(PAT* graph, int subgraph_size){
       ///TODO: not implemented
-      PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
+      //get random one edge of graph
+      EDGE edge = _d->get_random_edge(graph);
+
+      cout << "Making edge with:" << edge.first.first << " " << edge.first.second << " " << edge.second << endl;
+      PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
+      cout << "This single edge pattern is made:" << endl;
+      //cout << *cand_pat << endl;
+      return cand_pat;
+
+      //PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
       //extend the one_edge
 
-
-
     }
+
+
 
     PAT* get_one_random_maximal_pattern() {
       PAT* cand_pat = get_one_random_one_edge_frequent_pattern();

@@ -109,6 +109,16 @@ class Database {
       cout << "total graph in database:" << _graph_store.size() << endl;
     }
 
+  EDGE get_random_edge(PAT_T* graph){
+      //get random one edge of graph
+      const multiset<EDGE>& mset = graph->get_edgeset();
+      int idx=boost_get_a_random_number(0, mset.size());
+      EDGE_IT cit = mset.begin();
+      while (--idx>=0)
+        cit++;
+      //EDGE one_edge = *cit;
+      return *cit;
+    }
 
 		/*! \fn const NEIGHBORS& get_neighbors(V_T src_v) const
 		 *  \brief A member function returning neighbors of a given vertex v as parameter.
@@ -238,7 +248,7 @@ class Database {
       while (1) {
         pos = infile.tellg();
         std::getline(infile, one_line);
-        // cout << one_line << endl;
+        cout << one_line << endl;
         if (one_line.length()<1) {
           _graph_store.push_back(pat);
           return -1;
@@ -315,6 +325,10 @@ class Database {
     int get_random_graph_id() {
       int idx=boost_get_a_random_number(0, _graph_store.size());
       return idx;
+    }
+
+    PAT_T* get_graph_by_id(int id){
+      return _graph_store[id];
     }
 
 		/*! \fn void vat_and_freq_update(EDGE_FREQ_MAP local, int graph_no)
