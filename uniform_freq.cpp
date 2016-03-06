@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     cout << e.what() << endl;
   }
-	//database->print_database();
+	database->print_database();
   int cur_iter=0;
   ///TODO:
   //QUEUE* queue;

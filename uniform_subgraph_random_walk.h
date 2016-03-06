@@ -37,8 +37,10 @@ class Uniform_SubGraph_Random_Walk
   Uniform_SubGraph_Random_Walk(DATABASE* d,int graph_id, int subgraph_size) {
     _last = 0;
     _pf = PATTERN_FACTORY::instance(d);
+    _database = d;
     _subgraph_size=subgraph_size;
     _graph_id = graph_id;
+    _graph = _database->get_graph_by_id(_graph_id);
     cout << "Create a random walk manager for graph id:" << _graph_id << endl;
   }
 
@@ -54,7 +56,7 @@ class Uniform_SubGraph_Random_Walk
  		*  \return a pointer of LATTICE_NODE type.
  		*/
   LATTICE_NODE* initialize() {
-    PAT* p =_pf->get_random_subgraph(_subgraph_size);
+    PAT* p = _pf->get_random_subgraph(_graph, _subgraph_size);
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
     p->set_canonical_code(cc);
     cout << p->get_canonical_code().to_string() << endl;
@@ -63,7 +65,6 @@ class Uniform_SubGraph_Random_Walk
     process_node(ln);
     return ln;
   }
-
 
 	/*! \fn void walk(LATTICE_NODE* current, int &iter)
  		*  \brief A member function to do the random walk on itemset Lattice. Walk continues until
@@ -207,13 +208,11 @@ class Uniform_SubGraph_Random_Walk
 //#endif
     vector<PAT*> neighbors;
     _pf->get_neighbors_subgraph(p, neighbors);
-    //_pf->get_freq_super_patterns(p, neighbors);
-
-		//_pf->get_sub_patterns(p, neighbors);
 #ifdef PRINT
     cout << "Its neighbors:" << endl;
    cout << "Total neighbors="<< neighbors.size() << endl;
 #endif
+  //compute score of neighbors and push to neighbors list of pat
    for (int i=0; i<neighbors.size(); i++) {
       PAT* one_neighbor = neighbors[i];
 #ifdef PRINT
@@ -236,14 +235,14 @@ class Uniform_SubGraph_Random_Walk
   }
 
   private:
-  FREQ_CNT_MAP _freq_cnt; //!< store all sampled frequent itemset patterns.
   NODE_MAP _node_map;	//!< store all lattice node.
   PatternFactory<PAT>* _pf;//!< a PatternFactory object
-  //int _maxiter;//!< store maximum number of iteration.
   PAT* _last;//!< store last node of the random walk.
   time_tracker tt;
   int _graph_id;
   int _subgraph_size;
+  DATABASE* _database;
+  PAT* _graph ;
 };
 
 #endif
