@@ -56,7 +56,7 @@ void parse_args(int argc, char* argv[]) {
   }
 }//end parse_args()
 
-Queue_Item& sampling_subgraph(RDW_MAP& rdw_map,Database<PAT>* database,int const graph_id,int const subgraph_size)
+Queue_Item& sampling_subgraph(RDW_MAP& rdw_map,Database<PAT>* const database,int const graph_id,int const subgraph_size)
 {
   //get random_walk_manager of graph;
   RDW_MAPIT it = rdw_map.find(graph_id);
@@ -87,27 +87,40 @@ int main(int argc, char *argv[]) {
   try {
     database = new Database<PAT>(datafile);
     database->set_subgraph_size(subgraph_size);
+    database->set_minsup(1);
   }
   catch (exception& e) {
 
     cout << e.what() << endl;
   }
 	database->print_database();
+
   int cur_iter=0;
   ///TODO:
   //QUEUE* queue;
   cout<<"Begin sampling \n";
   RDW_MAP rdw_map;
 
+  PAT* g;
 
   while (cur_iter<=max_iter){
     cur_iter++;
+    cout<<"Begin sampling iter "<<cur_iter<<"\n";
     //select a graph uniformly
     int graph_id = database->get_random_graph_id();
     cout<< "random graph: \n"<< graph_id<<endl;
+    g = database->get_graph_by_id(graph_id);
+    cout << *g;
+
+    const typename PAT::CAN_CODE& cc = check_isomorphism(g);
+    g->set_canonical_code(cc);
+    cout << g->get_canonical_code().to_string() << endl;
+
+
 
     //sampling subgraph of the selected graph using Random walk
     Queue_Item subgraph = sampling_subgraph(rdw_map,database,graph_id,subgraph_size);
+
 //    double h_score = compute_score(database,sub_graph);
 //    if (queue.is_full() && (score < queue.lower_Half_Avg_Score()))
 //      continue;

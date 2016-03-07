@@ -106,14 +106,38 @@ class PatternFactory {
 
 
   PAT* get_random_subgraph(PAT* graph, int subgraph_size){
+      if (graph->size() <subgraph_size)
+        return NULL;
       ///TODO: not implemented
       //get random one edge of graph
       EDGE edge = _d->get_random_edge(graph);
+      V_T v1 = edge.first.first;
+      V_T v2 = edge.first.second;
 
       cout << "Making edge with:" << edge.first.first << " " << edge.first.second << " " << edge.second << endl;
       PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
       cout << "This single edge pattern is made:" << endl;
       //cout << *cand_pat << endl;
+
+      vector<V_T> vset;
+      vset.push_back(v1);
+      vset.push_back(v2);
+
+      while (vset.size()<subgraph_size)
+      {
+        //get random a vertex, v1;
+        int idx=boost_get_a_random_number(0, vset.size());
+        v1 = vset[idx];
+        //get random a neighbor of the vertex v1, called v2
+        vector<V_T> nbs;
+        graph->get_adj_matrix()->neighbors(v1,nbs);
+        for(int i=0;i<nbs.size();i++)
+          cout<<nbs[i]<<" ";
+        cout <<endl;
+
+
+        //check whether v2 connect with any vertex in vset,and add the corresponding edge
+      }
       return cand_pat;
 
       //PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
