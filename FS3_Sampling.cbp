@@ -18,6 +18,7 @@
 					<Add directory="D:/Temp/boost_1_60_0/" />
 					<Add directory="include" />
 					<Add directory="E:/tmp/boost_1_60_0/" />
+					<Add directory="E:/DKE/Implement/boost_1_60_0/" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
