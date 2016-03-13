@@ -42,6 +42,7 @@
 		<Unit filename="StringTokenizer.cpp" />
 		<Unit filename="StringTokenizer.h" />
 		<Unit filename="StringTokenizer.h.gch" />
+		<Unit filename="VectorUtility.h" />
 		<Unit filename="adj_matrix.h" />
 		<Unit filename="database.h" />
 		<Unit filename="element_parser.h" />
@@ -49,6 +50,7 @@
 		<Unit filename="graph_iso_check.h" />
 		<Unit filename="helper_funs.h" />
 		<Unit filename="lattice_node.h" />
+		<Unit filename="lattice_node2.h" />
 		<Unit filename="makefile" />
 		<Unit filename="matrix_base.cpp" />
 		<Unit filename="matrix_base.h" />
