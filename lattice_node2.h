@@ -1,6 +1,6 @@
-//! \file lattice_node.h - struct to represent a node on itemset lattice
-#ifndef _LATTICE_NODE_H
-#define _LATTICE_NODE_H
+#ifndef LATTICE_NODE2_H_INCLUDED
+#define LATTICE_NODE2_H_INCLUDED
+
 
 #include <ext/hash_set>
 #include "graph_iso_check.h"
@@ -10,26 +10,23 @@
 
 //! A lattice_node template structure
 template <typename PAT >
-struct lattice_node
+struct lattice_node2
 {
 
-  typedef lattice_node<PAT> L_NODE;
+  typedef lattice_node2<PAT> L_NODE;
   typedef typename PAT::VERTEX_T V_T;
   typedef typename PAT::EDGE_T E_T;
   typedef pair<int, int> EDGE;
 
   string get_key() {
     const typename PAT::CAN_CODE& cc = _pat->canonical_code();
+
     std::string min_dfs_cc = cc.to_string();
     return min_dfs_cc;
   }
 
 	//! Constructor
-  lattice_node(PAT* p) {
-    _pat = p;
-  }
-  lattice_node(PAT* p,vector<V_T> vids) {
-    _pat = p;
+  lattice_node(vector<V_T> vids) {
     _vids = vids;
   }
 
@@ -41,4 +38,5 @@ struct lattice_node
   int _super_cnt;
 };
 
-#endif
+
+#endif // LATTICE_NODE2_H_INCLUDED

@@ -56,65 +56,39 @@ class Uniform_SubGraph_Random_Walk
  		*  \return a pointer of LATTICE_NODE type.
  		*/
   LATTICE_NODE* initialize() {
-    PAT* p = _pf->get_random_subgraph(_graph, _subgraph_size);
-    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-    p->set_canonical_code(cc);
-    cout << p->get_canonical_code().to_string() << endl;
+    vector<int> vids;
+    _pf->get_random_subgraph(_graph, _subgraph_size,vids);
 
-    LATTICE_NODE* ln = create_lattice_node(p);
-    process_node(ln);
-    return ln;
+    cout<<"vertex indexs: ";
+    for(int i=0;i<vids.size();i++)
+      cout<<vids[i]<<" ";
+
+    _last_node = create_lattice_node(_graph,vids);
+    process_node(_last_node);
+    return _last_node;
   }
 
-	/*! \fn void walk(LATTICE_NODE* current, int &iter)
- 		*  \brief A member function to do the random walk on itemset Lattice. Walk continues until
-		* iteration count hits maximum number of iteration. From a current node this method selects
-		* next node to jump based on acceptance probability calculated by Metropolis-Hastings
-		* algorithm.
-		*	\param current a pointer of LATTICE_NODE.
-		* \param iter a reference of an integer
-	*/
-// 	bool walk(LATTICE_NODE* current, int &iter) {
+  PAT* sampling_subgraph(double& score)
+  {
+    LATTICE_NODE* current;
+    if(!_isInitialized)
+      current = initialize();
+    else
+      current = get_next(current);
+
+    LATTICE_NODE* next=NULL;
+//    while(next==NULL)
+//    {
 //
-//    int step = 1;
-//    while (true) {
-//      process_node(current);
-//			if(current->_neighbors.size()==0)// if current has no neighbors return and start over again.
-//			{
-//				return 0;
-//			}
-//      PAT* p = current->_pat;
-//      if (iter >= _maxiter) {
-//				tt.stop();
-//				cout<< "time taken="<<tt.print()<<endl;
-//        cout << "Dist:";
-//        FC_IT fit;
-//        for (fit = _freq_cnt.begin(); fit != _freq_cnt.end(); fit++) {
-//          cout << fit->first << "(" << fit->second << ")" << endl;
-//        }
-//        cout << "maxiter:" << _maxiter << " iter:" << iter << " Returing from here" << endl;
-//        return 1;
-//      }
-//
-//      if (step >=10) {  // assuming after 10 steps, the walk mixes to uniformity
-//        iter++;
-//        string cc = p->get_canonical_code().to_string();
-//        FC_IT fit = _freq_cnt.find(cc);
-//        if (fit != _freq_cnt.end()) {
-//          fit->second++;
-//        }
-//        else {
-//          _freq_cnt.insert(make_pair(cc, 1));
-//          cout << "Iter:" << iter << " Total sampled:" << _freq_cnt.size() << " Total traversed:" << _node_map.size() << endl;
-//        }
-//      }
-//      // cout << "In walk: looking for new node to visit" << endl;
-//      LATTICE_NODE* next = get_next(current);
-//      _last = p;
-//      current = next;
-//      step++;
 //    }
-//  }
+    //dx = neighbor_count of x;
+    //a_subx = score of graph x;
+    /*while (a neighbor y is not found)
+        y = a random neighbor of x;
+        dy = possible neighbor of y
+    */
+    return next->_pat;;
+  }
 
 	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
  		*  \brief A member function to get next node on itemset lattice to jump from current.
@@ -155,14 +129,36 @@ class Uniform_SubGraph_Random_Walk
 		*	\param p a reference of a pointer of PAT.
 		* \return a pointer of LATTICE_NODE
 	*/
-  LATTICE_NODE* create_lattice_node(PAT*& p) {
+//  LATTICE_NODE* create_lattice_node(PAT*& p) {
+//    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+//    p->set_canonical_code(cc);
+//    std::string min_dfs_cc = cc.to_string();
+//
+//    LATTICE_NODE* node = exists(min_dfs_cc);
+//    if (node == 0) {  // new pattern
+//      node = new LATTICE_NODE(p);
+//      node->_is_processed = false;
+//      insert_lattice_node(min_dfs_cc, node);
+//    }
+//    else {
+//      delete p;
+//      p = node->_pat;
+//    }
+//    return node;
+//  }
+
+  LATTICE_NODE* create_lattice_node(PAT*& graph,vector<int>& vids) {
+    //get subgraph from vids
+    PAT* p = _pf->make_subgraph_from_vids(graph,vids);
+
+    //get can_code of subgraph
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
     p->set_canonical_code(cc);
     std::string min_dfs_cc = cc.to_string();
 
     LATTICE_NODE* node = exists(min_dfs_cc);
     if (node == 0) {  // new pattern
-      node = new LATTICE_NODE(p);
+      node = new LATTICE_NODE(p,vids);
       node->_is_processed = false;
       insert_lattice_node(min_dfs_cc, node);
     }
@@ -201,36 +197,50 @@ class Uniform_SubGraph_Random_Walk
   void process_node(LATTICE_NODE* n) {
     if (n->_is_processed) return;
     PAT* p = n->_pat;
+
+    vector<int> vids = n->_vids;
+    vector<vector<int> > nbs_vids(vids.size());
+
+    int dx = _pf->count_neighbor_subgraph(_graph,vids,nbs_vids);
+    cout<<"neighbors count: "<<dx<<endl;
+    for(int i=0;i<nbs_vids.size();i++)
+    {
+      cout<<i<<": ";
+      for (int j=0;j<nbs_vids[i].size();j++)
+        cout<<nbs_vids[i][j]<<" ";
+      cout<<endl;
+    }
+
     //assert(p->get_sup_ok() == 0);
 //#ifdef PRINT
     cout << "Current pattern:\n";
     cout << *p;
 //#endif
     vector<PAT*> neighbors;
-    _pf->get_neighbors_subgraph(p, neighbors);
+    _pf->get_neighbors_subgraph(p,n->_vids, neighbors);
 #ifdef PRINT
     cout << "Its neighbors:" << endl;
    cout << "Total neighbors="<< neighbors.size() << endl;
 #endif
   //compute score of neighbors and push to neighbors list of pat
-   for (int i=0; i<neighbors.size(); i++) {
-      PAT* one_neighbor = neighbors[i];
-#ifdef PRINT
-      cout << *one_neighbor;
-#endif
-      int its_degree=_pf->get_super_degree(one_neighbor)+ _pf->get_sub_degree(one_neighbor);
-#ifdef PRINT
-      cout << "Its degree:" << its_degree << endl;
-#endif
-      double prob = 1.0 / (its_degree>neighbors.size()? its_degree : neighbors.size());
-      LATTICE_NODE* ln = create_lattice_node(one_neighbor);
-      int status;
-      n->_neighbors.push_back(ln);
-      n->_neighbor_prob.push_back(prob);
-
-      const typename PAT::CAN_CODE& cc = check_isomorphism(one_neighbor);
-      one_neighbor->set_canonical_code(cc);
-    }
+//   for (int i=0; i<neighbors.size(); i++) {
+//      PAT* one_neighbor = neighbors[i];
+//#ifdef PRINT
+//      cout << *one_neighbor;
+//#endif
+//      int its_degree=_pf->get_super_degree(one_neighbor)+ _pf->get_sub_degree(one_neighbor);
+//#ifdef PRINT
+//      cout << "Its degree:" << its_degree << endl;
+//#endif
+//      double prob = 1.0 / (its_degree>neighbors.size()? its_degree : neighbors.size());
+//      LATTICE_NODE* ln = create_lattice_node(one_neighbor);
+//      int status;
+//      n->_neighbors.push_back(ln);
+//      n->_neighbor_prob.push_back(prob);
+//
+//      const typename PAT::CAN_CODE& cc = check_isomorphism(one_neighbor);
+//      one_neighbor->set_canonical_code(cc);
+//    }
     n->_is_processed=true;
   }
 
@@ -238,6 +248,11 @@ class Uniform_SubGraph_Random_Walk
   NODE_MAP _node_map;	//!< store all lattice node.
   PatternFactory<PAT>* _pf;//!< a PatternFactory object
   PAT* _last;//!< store last node of the random walk.
+  vector<int> _last_vids;
+  LATTICE_NODE* _last_node;
+
+  bool _isInitialized = false;
+
   time_tracker tt;
   int _graph_id;
   int _subgraph_size;

@@ -61,6 +61,23 @@ class PatternFactory {
       return p;
     }
 
+    PAT* make_subgraph_from_vids(PAT* graph, vector<int> vids) {
+      vector<V_T> vlabels(vids.size());
+      for(int i=0;i<vids.size();i++)
+        vlabels[i]=graph->label(vids[i]);
+
+      PAT* p = new PAT(vlabels);
+      for(int i=0;i<vids.size();i++){
+        for(int j=i+1;j<vids.size();j++)
+        if (graph->edge_exist(vids[i],vids[j]))
+        {
+          E_T e = graph->get_edge_label(vids[i],vids[j]);
+          p->add_edge(i,j,e);
+        }
+      }
+      return p;
+    }
+
     // precondition: given pattern is entirely consistent with correct support count
     // and support list
 		/*! \fn PAT* pattern_with_edge_removed(PAT* p, const int& a, const int& b)
@@ -104,46 +121,129 @@ class PatternFactory {
       int v_count = 2;
     }
 
-
-  PAT* get_random_subgraph(PAT* graph, int subgraph_size){
-      if (graph->size() <subgraph_size)
-        return NULL;
-      ///TODO: not implemented
-      //get random one edge of graph
-      EDGE edge = _d->get_random_edge(graph);
-      V_T v1 = edge.first.first;
-      V_T v2 = edge.first.second;
-
-      cout << "Making edge with:" << edge.first.first << " " << edge.first.second << " " << edge.second << endl;
-      PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
-      cout << "This single edge pattern is made:" << endl;
-      //cout << *cand_pat << endl;
-
-      vector<V_T> vset;
-      vset.push_back(v1);
-      vset.push_back(v2);
-
-      while (vset.size()<subgraph_size)
+  int count_neighbor_subgraph(PAT* graph, vector<int>& vids,vector<vector<int> >& nbs_vids)
+  {
+    int c=0;
+    for(int i=0;i<vids.size();i++)
+    {
+      vector<int> nb;
+      for(int h=0;h<vids.size();h++)
       {
-        //get random a vertex, v1;
-        int idx=boost_get_a_random_number(0, vset.size());
-        v1 = vset[idx];
-        //get random a neighbor of the vertex v1, called v2
-        vector<V_T> nbs;
-        graph->get_adj_matrix()->neighbors(v1,nbs);
-        for(int i=0;i<nbs.size();i++)
-          cout<<nbs[i]<<" ";
-        cout <<endl;
-
-
-        //check whether v2 connect with any vertex in vset,and add the corresponding edge
+        if (h==i)
+          continue;
+        graph->get_adj_matrix()->neighbors(vids[h],nb);
       }
-      return cand_pat;
-
-      //PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
-      //extend the one_edge
-
+      //Check if neighbor vertex is not in subgraph => add to neighbor vector
+      for(int j=0;j<nb.size();j++)
+      {
+        bool isInSubgraph=false;
+        for (int k=0;k<vids.size();k++)
+          if (nb[j]== vids[k])
+          {
+            isInSubgraph =true;
+            break;
+          }
+        if (!isInSubgraph)
+        {
+          nbs_vids[i].push_back(nb[j]);
+          c++;
+        }
+      }
     }
+    return c;
+  }
+
+  void get_random_subgraph(PAT* graph, int subgraph_size,vector<int>& vids){
+    if (graph->size() <subgraph_size){
+      cout<<"graph size "<<graph->size()<<" is less than subgraph_size"<<subgraph_size<<endl;
+      return;
+    }
+
+    vector<V_T> v_nbs;
+    int vid1 = boost_get_a_random_number(0,graph->size());
+    vids.push_back(vid1);
+    graph->get_adj_matrix()->neighbors(vid1,v_nbs);
+
+    while (vids.size()<subgraph_size){
+      int idx=boost_get_a_random_number(0, v_nbs.size());
+      int vid2 = v_nbs[idx];
+      v_nbs.erase(v_nbs.begin()+idx);
+      //if vid2 is not existed in vid then push_back
+      bool existed = false;
+      for(int i=0; i<vids.size();i++)
+        if (vids[i] == vid2){
+          existed=true;
+          break;
+        }
+      if (!existed)
+        vids.push_back(vid2);
+    }
+  }
+
+//
+//  PAT* get_random_subgraph(PAT* graph, int subgraph_size){
+//      if (graph->size() <subgraph_size)
+//        return NULL;
+//
+//      vector<int> vids;
+//      vector<V_T> v_nbs;
+//      int vid1 = boost_get_a_random_number(0,graph->size());
+//      vids.push_back(vid1);
+//      graph->get_adj_matrix()->neighbors(vid1,v_nbs);
+//
+//      while (vids.size()<subgraph_size){
+//        int idx=boost_get_a_random_number(0, v_nbs.size());
+//        int vid2 = v_nbs[idx];
+//        v_nbs.erase(v_nbs.begin()+idx);
+//        //if vid2 is not existed in vid then push_back
+//        bool existed = false;
+//        for(vector<int>::iterator it; it<vids.end();it++)
+//        if (it* ==vid2){
+//          existed=true;
+//          break;
+//        }
+//        if (!existed)
+//          vids.push_back(vid2);
+//      }
+//
+//
+//      PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
+
+//      //get random one edge of graph
+//      EDGE edge = _d->get_random_edge(graph);
+//      V_T v1 = edge.first.first;
+//      V_T v2 = edge.first.second;
+//
+//      cout << "Making edge with:" << edge.first.first << " " << edge.first.second << " " << edge.second << endl;
+//      PAT* cand_pat = make_single_edge_pattern(edge.first.first, edge.first.second, edge.second);
+//      cout << "This single edge pattern is made:" << endl;
+//      //cout << *cand_pat << endl;
+//
+//      vector<V_T> vset;
+//      vset.push_back(v1);
+//      vset.push_back(v2);
+//
+//      while (vset.size()<subgraph_size)
+//      {
+//        //get random a vertex, v1;
+//        int idx=boost_get_a_random_number(0, vset.size());
+//        v1 = vset[idx];
+//        //get random a neighbor of the vertex v1, called v2
+//        vector<V_T> nbs;
+//        graph->get_adj_matrix()->neighbors(v1,nbs);
+//        for(int i=0;i<nbs.size();i++)
+//          cout<<nbs[i]<<" ";
+//        cout <<endl;
+//
+//
+//        //check whether v2 connect with any vertex in vset,and add the corresponding edge
+//      }
+//      return cand_pat;
+//
+//      //PAT* cand_pat = get_one_random_one_edge_frequent_pattern();
+//      //extend the one_edge
+//
+//    }
 
 
 
@@ -348,7 +448,7 @@ class PatternFactory {
       return ret_val;
     }
 
-    void get_neighbors_subgraph(const PAT* pat, vector<PAT*>& super_patterns) {
+    void get_neighbors_subgraph(const PAT* pat,vector<int>& vids, vector<PAT*>& super_patterns) {
 #ifdef PRINT
       cout<<"In call to get_all_frequent_super_pattern\n";
 #endif

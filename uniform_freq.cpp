@@ -69,9 +69,9 @@ Queue_Item& sampling_subgraph(RDW_MAP& rdw_map,Database<PAT>* const database,int
   }else{
     rdw = it->second;
   }
-  lattice_node<PAT>* start = rdw->initialize();
-  //lattice_node<PAT>* cur_sate = rdw->sample_subgraph(subgraph_size);
-  lattice_node<PAT>* cur_sate = rdw->get_next(start);
+  //lattice_node<PAT>* start = rdw->initialize();
+  //lattice_node<PAT>* cur_sate = rdw->get_next(start);
+  //lattice_node<PAT>* cur_sate =rdw->walk();
   Queue_Item rs;
 
   return rs;
@@ -102,6 +102,7 @@ int main(int argc, char *argv[]) {
   RDW_MAP rdw_map;
 
   PAT* g;
+  max_iter = 2;
 
   while (cur_iter<=max_iter){
     cur_iter++;
@@ -112,9 +113,59 @@ int main(int argc, char *argv[]) {
     g = database->get_graph_by_id(graph_id);
     cout << *g;
 
-    const typename PAT::CAN_CODE& cc = check_isomorphism(g);
-    g->set_canonical_code(cc);
-    cout << g->get_canonical_code().to_string() << endl;
+    RDW_MAPIT it = rdw_map.find(graph_id);
+    RANDOM_WALK* rdw;
+    if (it == rdw_map.end()){
+      //the graph_id is sampled in the first time
+      rdw = new RANDOM_WALK(database,graph_id,subgraph_size);
+      rdw_map.insert(make_pair(graph_id,rdw));
+
+    }else{
+      rdw = it->second;
+    }
+    double h_score ;
+    PAT* h = rdw->sampling_subgraph(h_score);
+
+
+//    const typename PAT::CAN_CODE& cc = check_isomorphism(g);
+//    g->set_canonical_code(cc);
+//    cout << g->get_canonical_code().to_string() << endl;
+//
+//    //lay sanh sach cac vertex
+//    int vcount = g->size();
+//    cout<<"graph size: "<<vcount<<endl;
+//
+//    vector<int> ret;
+//    int vid = vcount/2;
+//    int label = g->label(vid);
+//    cout <<"Vid: "<<vid<<", label: "<<label<<endl;
+//
+//    g->get_adj_matrix()->neighbors(vid,ret);
+//    cout<< "neighbor of "<<vid<<": "<<ret.size()<<endl;
+//
+//    for(int iv=0;iv<ret.size();iv++)
+//      cout << ret[iv] << " ";
+//    cout<<endl;
+//
+//    //lay canh ke
+//    int vid2 = ret[0];
+//    bool connected = g->edge_exist(vid,vid2);
+//
+//    if (connected)
+//      cout<<"edge "<<vid<<"->"<<vid2<<" exist: "<<g->get_edge_label(vid,vid2)<<endl;
+//    else
+//      cout<<"edge "<<vid<<"->"<<vid2<<" not exist"<<endl;
+//    vector<int> a;
+
+
+
+//    vector<int> vids_of_label;
+//    //lay danh sach vertex theo label
+//    g->get_vids_for_this_label(label,vids_of_label);
+//    cout<<"vids of label "<<label<<": "<<vids_of_label.size()<<endl;
+//    for(int i=0;i<vids_of_label.size();i++)
+//      cout<<vids_of_label[i]<<" ";
+//    cout<<endl;
 
 
 
@@ -133,6 +184,7 @@ int main(int argc, char *argv[]) {
   }
 
   delete database;
+  getchar();
 
   /* creating random_walk_manager and starting walk */
 //  Uniform_Freq_Random_Walk<PAT> rwm(database, max_iter);
