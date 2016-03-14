@@ -32,6 +32,9 @@ struct lattice_node
     _pat = p;
     _vids = vids;
   }
+  lattice_node()
+  {
+  }
 
   bool _is_processed; //!< it is true, when we know all neighbors and their status of this pattern
   PAT* _pat;//!< Store a pattern in lattice node

@@ -56,15 +56,39 @@ class Uniform_SubGraph_Random_Walk
  		*  \return a pointer of LATTICE_NODE type.
  		*/
   LATTICE_NODE* initialize() {
-    vector<int> vids;
-    _pf->get_random_subgraph(_graph, _subgraph_size,vids);
+    LATTICE_NODE* lNode = new LATTICE_NODE();
+    //vector<int> vids;
+    _pf->get_random_subgraph(_graph, _subgraph_size,lNode->_vids);
 
     cout<<"vertex indexs: ";
-    for(int i=0;i<vids.size();i++)
-      cout<<vids[i]<<" ";
+    for(int i=0;i<lNode->_vids.size();i++)
+      cout<<lNode->_vids[i]<<" ";
 
-    _last_node = create_lattice_node(_graph,vids);
+    PAT* p = _pf->make_subgraph_from_vids(_graph,lNode->_vids);
+
+    //get can_code of subgraph
+    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+    p->set_canonical_code(cc);
+    std::string min_dfs_cc = cc.to_string();
+
+    LATTICE_NODE* node = exists(min_dfs_cc);
+    if (node == 0) {  // new pattern
+      node = lNode;
+      node->_pat = p;
+      node->_is_processed = false;
+      insert_lattice_node(min_dfs_cc, node);
+    }
+    else {
+      delete p;
+      p = node->_pat;
+      delete lNode;
+    }
+
+    //_last_node = create_lattice_node(_graph,vids);
+    _last_node = lNode;
     process_node(_last_node);
+
+    _isInitialized=true;
     return _last_node;
   }
 
@@ -87,7 +111,8 @@ class Uniform_SubGraph_Random_Walk
         y = a random neighbor of x;
         dy = possible neighbor of y
     */
-    return next->_pat;;
+    //return next->_pat;;
+    return NULL;
   }
 
 	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
@@ -98,6 +123,8 @@ class Uniform_SubGraph_Random_Walk
 		* \return a pointer of LATTICE_NODE.
 	*/
   LATTICE_NODE* get_next(LATTICE_NODE* current) const {
+    ///TODO: not implemented
+    return NULL;
     int total=current->_neighbor_prob.size();
 #ifdef PRINT
    std::copy(current->_neighbor_prob.begin(), current->_neighbor_prob.end(), ostream_iterator<double>(cout," "));
@@ -216,8 +243,8 @@ class Uniform_SubGraph_Random_Walk
     cout << "Current pattern:\n";
     cout << *p;
 //#endif
-    vector<PAT*> neighbors;
-    _pf->get_neighbors_subgraph(p,n->_vids, neighbors);
+    //vector<PAT*> neighbors;
+    //_pf->get_neighbors_subgraph(p,n->_vids, neighbors);
 #ifdef PRINT
     cout << "Its neighbors:" << endl;
    cout << "Total neighbors="<< neighbors.size() << endl;

@@ -125,7 +125,10 @@ int main(int argc, char *argv[]) {
     }
     double h_score ;
     PAT* h = rdw->sampling_subgraph(h_score);
-
+    if (h!=NULL){
+      cout<<"Sampled subgraph: "<<endl;
+      cout<<*h;
+    }
 
 //    const typename PAT::CAN_CODE& cc = check_isomorphism(g);
 //    g->set_canonical_code(cc);
@@ -170,7 +173,7 @@ int main(int argc, char *argv[]) {
 
 
     //sampling subgraph of the selected graph using Random walk
-    Queue_Item subgraph = sampling_subgraph(rdw_map,database,graph_id,subgraph_size);
+    //Queue_Item subgraph = sampling_subgraph(rdw_map,database,graph_id,subgraph_size);
 
 //    double h_score = compute_score(database,sub_graph);
 //    if (queue.is_full() && (score < queue.lower_Half_Avg_Score()))

@@ -175,8 +175,10 @@ class PatternFactory {
           existed=true;
           break;
         }
-      if (!existed)
+      if (!existed){
         vids.push_back(vid2);
+        graph->get_adj_matrix()->neighbors(vid2,v_nbs);
+      }
     }
   }
 
