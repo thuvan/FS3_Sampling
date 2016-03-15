@@ -57,35 +57,46 @@ class Uniform_SubGraph_Random_Walk
  		*/
   LATTICE_NODE* initialize() {
     LATTICE_NODE* lNode = new LATTICE_NODE();
-    //vector<int> vids;
+
+    //get random vertex id
     _pf->get_random_subgraph(_graph, _subgraph_size,lNode->_vids);
 
-    cout<<"vertex indexs: ";
-    for(int i=0;i<lNode->_vids.size();i++)
-      cout<<lNode->_vids[i]<<" ";
+//    cout<<"vertex indexs: ";
+//    for(int i=0;i<lNode->_vids.size();i++)
+//      cout<<lNode->_vids[i]<<" ";
+//    cout<<endl;
 
-    PAT* p = _pf->make_subgraph_from_vids(_graph,lNode->_vids);
+    //get key code for Lattice node
+    std::string node_key = lNode->get_key();
+    cout<<"code: "<<node_key<<endl;
 
-    //get can_code of subgraph
-    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-    p->set_canonical_code(cc);
-    std::string min_dfs_cc = cc.to_string();
+//    cout<<"vertex indexs after getkey(): ";
+//    for(int i=0;i<lNode->_vids.size();i++)
+//      cout<<lNode->_vids[i]<<" ";
+//    cout<<endl;
 
-    LATTICE_NODE* node = exists(min_dfs_cc);
+    //push into node map
+    LATTICE_NODE* node = exists(node_key);
     if (node == 0) {  // new pattern
       node = lNode;
+      //create subgraph instance
+      ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
+      PAT* p = _pf->make_subgraph_from_vids(_graph,lNode->_vids);
+      const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+      p->set_canonical_code(cc);
       node->_pat = p;
+
       node->_is_processed = false;
-      insert_lattice_node(min_dfs_cc, node);
+      insert_lattice_node(node_key, node);
     }
     else {
-      delete p;
-      p = node->_pat;
+      //delete p;
+      //p = node->_pat;
       delete lNode;
     }
 
     //_last_node = create_lattice_node(_graph,vids);
-    _last_node = lNode;
+    _last_node = node;
     process_node(_last_node);
 
     _isInitialized=true;
@@ -94,106 +105,22 @@ class Uniform_SubGraph_Random_Walk
 
   PAT* sampling_subgraph(double& score)
   {
-    LATTICE_NODE* current;
     if(!_isInitialized)
-      current = initialize();
-    else
-      current = get_next(current);
+      _last_node = initialize();
 
-    LATTICE_NODE* next=NULL;
-//    while(next==NULL)
-//    {
-//
-//    }
-    //dx = neighbor_count of x;
-    //a_subx = score of graph x;
-    /*while (a neighbor y is not found)
-        y = a random neighbor of x;
-        dy = possible neighbor of y
-    */
+     LATTICE_NODE* next=NULL;
+    ///TODO: viet vong while o day
+    while(next==NULL)
+    {
+        //next = random 1 neighbor of _last_node
+        //tinh score of y
+        //check probability
+        //
+        next = _last_node; //gan tam de cho ko bi loi
+    }
+
     //return next->_pat;;
-    return NULL;
-  }
-
-	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
- 		*  \brief A member function to get next node on itemset lattice to jump from current.
-		*	 Acceptance probability calculation of Metropolis-Hastings
-		* algorithm is implemented here.
-		*	\param current a pointer of LATTICE_NODE.
-		* \return a pointer of LATTICE_NODE.
-	*/
-  LATTICE_NODE* get_next(LATTICE_NODE* current) const {
-    ///TODO: not implemented
-    return NULL;
-    int total=current->_neighbor_prob.size();
-#ifdef PRINT
-   std::copy(current->_neighbor_prob.begin(), current->_neighbor_prob.end(), ostream_iterator<double>(cout," "));
-    cout << endl;
-#endif
-    vector<double> prob(total+1);
-    prob[0]=current->_neighbor_prob[0];
-    for (int i=1; i<total; i++) {
-      prob[i]=prob[i-1]+current->_neighbor_prob[i];
-    }
-    assert(prob[total-1]<=1.00001);
-    prob[total]=1;
-#ifdef PRINT
-    std::copy(prob.begin(), prob.end(), ostream_iterator<double>(cout," "));
-    cout << endl;
-#endif
-    int idx;
-    do {
-      idx = randomWithDiscreteProbability(prob);
-    } while (idx == total);
-//    cout << "returning with:" << idx << endl;
-    return current->_neighbors[idx];
-  }
-
-	/*! \fn LATTICE_NODE* create_lattice_node(PAT*& p)
- 		*  \brief A member function to create a new lattice node.
-		*	 It first check whether the pattern p come as parameter is already a lattice node from its canonical code.
-		*	 If not a new lattice node is created.
-		*	\param p a reference of a pointer of PAT.
-		* \return a pointer of LATTICE_NODE
-	*/
-//  LATTICE_NODE* create_lattice_node(PAT*& p) {
-//    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-//    p->set_canonical_code(cc);
-//    std::string min_dfs_cc = cc.to_string();
-//
-//    LATTICE_NODE* node = exists(min_dfs_cc);
-//    if (node == 0) {  // new pattern
-//      node = new LATTICE_NODE(p);
-//      node->_is_processed = false;
-//      insert_lattice_node(min_dfs_cc, node);
-//    }
-//    else {
-//      delete p;
-//      p = node->_pat;
-//    }
-//    return node;
-//  }
-
-  LATTICE_NODE* create_lattice_node(PAT*& graph,vector<int>& vids) {
-    //get subgraph from vids
-    PAT* p = _pf->make_subgraph_from_vids(graph,vids);
-
-    //get can_code of subgraph
-    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-    p->set_canonical_code(cc);
-    std::string min_dfs_cc = cc.to_string();
-
-    LATTICE_NODE* node = exists(min_dfs_cc);
-    if (node == 0) {  // new pattern
-      node = new LATTICE_NODE(p,vids);
-      node->_is_processed = false;
-      insert_lattice_node(min_dfs_cc, node);
-    }
-    else {
-      delete p;
-      p = node->_pat;
-    }
-    return node;
+    return next->_pat;
   }
 
 	/*! \fn LATTICE_NODE* exists(string p)
@@ -222,6 +149,9 @@ class Uniform_SubGraph_Random_Walk
 		*	\param n a LATTICE_NODE pointer
 	*/
   void process_node(LATTICE_NODE* n) {
+    ///TODO:
+    //khoi tao cac field: score, neighbors
+
     if (n->_is_processed) return;
     PAT* p = n->_pat;
 
@@ -238,38 +168,83 @@ class Uniform_SubGraph_Random_Walk
       cout<<endl;
     }
 
-    //assert(p->get_sup_ok() == 0);
-//#ifdef PRINT
     cout << "Current pattern:\n";
     cout << *p;
-//#endif
     //vector<PAT*> neighbors;
     //_pf->get_neighbors_subgraph(p,n->_vids, neighbors);
-#ifdef PRINT
-    cout << "Its neighbors:" << endl;
-   cout << "Total neighbors="<< neighbors.size() << endl;
-#endif
-  //compute score of neighbors and push to neighbors list of pat
-//   for (int i=0; i<neighbors.size(); i++) {
-//      PAT* one_neighbor = neighbors[i];
-//#ifdef PRINT
-//      cout << *one_neighbor;
-//#endif
-//      int its_degree=_pf->get_super_degree(one_neighbor)+ _pf->get_sub_degree(one_neighbor);
-//#ifdef PRINT
-//      cout << "Its degree:" << its_degree << endl;
-//#endif
-//      double prob = 1.0 / (its_degree>neighbors.size()? its_degree : neighbors.size());
-//      LATTICE_NODE* ln = create_lattice_node(one_neighbor);
-//      int status;
-//      n->_neighbors.push_back(ln);
-//      n->_neighbor_prob.push_back(prob);
-//
-//      const typename PAT::CAN_CODE& cc = check_isomorphism(one_neighbor);
-//      one_neighbor->set_canonical_code(cc);
-//    }
+    //cout << "Its neighbors:" << endl;
+    //cout << "Total neighbors="<< neighbors.size() << endl;
+
     n->_is_processed=true;
   }
+
+//================================= CODE DA BI XOA ====================================
+
+//	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
+// 		*  \brief A member function to get next node on itemset lattice to jump from current.
+//		*	 Acceptance probability calculation of Metropolis-Hastings
+//		* algorithm is implemented here.
+//		*	\param current a pointer of LATTICE_NODE.
+//		* \return a pointer of LATTICE_NODE.
+//	*/
+//  LATTICE_NODE* get_next(LATTICE_NODE* current) const {
+//    ///TODO: not implemented
+//    return NULL;
+//    int total=current->_neighbor_prob.size();
+//#ifdef PRINT
+//   std::copy(current->_neighbor_prob.begin(), current->_neighbor_prob.end(), ostream_iterator<double>(cout," "));
+//    cout << endl;
+//#endif
+//    vector<double> prob(total+1);
+//    prob[0]=current->_neighbor_prob[0];
+//    for (int i=1; i<total; i++) {
+//      prob[i]=prob[i-1]+current->_neighbor_prob[i];
+//    }
+//    assert(prob[total-1]<=1.00001);
+//    prob[total]=1;
+//#ifdef PRINT
+//    std::copy(prob.begin(), prob.end(), ostream_iterator<double>(cout," "));
+//    cout << endl;
+//#endif
+//    int idx;
+//    do {
+//      idx = randomWithDiscreteProbability(prob);
+//    } while (idx == total);
+////    cout << "returning with:" << idx << endl;
+//    return current->_neighbors[idx];
+//  }
+
+
+//	/*! \fn LATTICE_NODE* create_lattice_node(PAT*& p)
+// 		*  \brief A member function to create a new lattice node.
+//		*	 It first check whether the pattern p come as parameter is already a lattice node from its canonical code.
+//		*	 If not a new lattice node is created.
+//		*	\param p a reference of a pointer of PAT.
+//		* \return a pointer of LATTICE_NODE
+//	*/
+//  LATTICE_NODE* create_lattice_node(PAT*& graph,vector<int>& vids) {
+//    //get subgraph from vids
+//    PAT* p = _pf->make_subgraph_from_vids(graph,vids);
+//
+//    //get can_code of subgraph
+//    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+//    p->set_canonical_code(cc);
+//    std::string min_dfs_cc = cc.to_string();
+//
+//    LATTICE_NODE* node = exists(min_dfs_cc);
+//    if (node == 0) {  // new pattern
+//      node = new LATTICE_NODE(p,vids);
+//      node->_is_processed = false;
+//      insert_lattice_node(min_dfs_cc, node);
+//    }
+//    else {
+//      delete p;
+//      p = node->_pat;
+//    }
+//    return node;
+//  }
+
+//=======================================================================================
 
   private:
   NODE_MAP _node_map;	//!< store all lattice node.

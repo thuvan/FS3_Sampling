@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
     cout<<"Begin sampling iter "<<cur_iter<<"\n";
     //select a graph uniformly
     int graph_id = database->get_random_graph_id();
-    cout<< "random graph: \n"<< graph_id<<endl;
+    cout<< "selected graph: \n"<< graph_id<<endl;
     g = database->get_graph_by_id(graph_id);
     cout << *g;
 
@@ -119,7 +119,6 @@ int main(int argc, char *argv[]) {
       //the graph_id is sampled in the first time
       rdw = new RANDOM_WALK(database,graph_id,subgraph_size);
       rdw_map.insert(make_pair(graph_id,rdw));
-
     }else{
       rdw = it->second;
     }

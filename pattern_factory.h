@@ -153,6 +153,12 @@ class PatternFactory {
     return c;
   }
 
+    /*! \fn void* get_random_subgraph(PAT* graph, int subgraph_size,vector<int>& vids)
+ 		*  \brief A member function to get vertex ids of a random subgraph with given size
+ 		*	\param graph a pointer of Graph.
+ 		*	\param size size of subgraph.
+ 		*	\param vids vector that store the vids of a random subgraph
+ 		*/
   void get_random_subgraph(PAT* graph, int subgraph_size,vector<int>& vids){
     if (graph->size() <subgraph_size){
       cout<<"graph size "<<graph->size()<<" is less than subgraph_size"<<subgraph_size<<endl;

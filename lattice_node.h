@@ -18,11 +18,30 @@ struct lattice_node
   typedef typename PAT::EDGE_T E_T;
   typedef pair<int, int> EDGE;
 
+//  string get_key() {
+//    const typename PAT::CAN_CODE& cc = _pat->canonical_code();
+//    std::string min_dfs_cc = cc.to_string();
+//    return min_dfs_cc;
+//  }
+
   string get_key() {
-    const typename PAT::CAN_CODE& cc = _pat->canonical_code();
-    std::string min_dfs_cc = cc.to_string();
-    return min_dfs_cc;
+    if (_key.empty())
+      _key = createKey(_vids);
+    return _key;
   }
+
+  string createKey(vector<V_T> vids)
+  {
+    ostringstream t_ss;
+    //sort vids
+    sort(vids.begin(),vids.end());
+    //get string from ordered ids
+    for(int i=0;i<vids.size();i++)
+      t_ss << vids[i]<<".";
+    string t_str = t_ss.str();
+    return t_str;
+  }
+
 
 	//! Constructor
   lattice_node(PAT* p) {
@@ -42,6 +61,9 @@ struct lattice_node
   vector<L_NODE*> _neighbors;//!< Store all the neighbors of a node
   vector<double> _neighbor_prob;
   int _super_cnt;
+
+  string _key;
+  //vector<pair<V_T,vector<V_T> > > _nbsList; // pair<vid, replaceable vids>
 };
 
 #endif

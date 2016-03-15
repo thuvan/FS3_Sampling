@@ -19,10 +19,21 @@ struct lattice_node2
   typedef pair<int, int> EDGE;
 
   string get_key() {
-    const typename PAT::CAN_CODE& cc = _pat->canonical_code();
+    if (_key==NULL)
+      _key = createKey(_vids);
+    return _key;
+  }
 
-    std::string min_dfs_cc = cc.to_string();
-    return min_dfs_cc;
+  string createKey(vector<V_T> vids)
+  {
+    ostringstream t_ss;
+    //sort vids
+    sort(vids.begin(),vids.end());
+    //get string from ordered ids
+    for(int i=0;i<vids.size();i++)
+      t_ss << vids[i];
+    string t_str = t_ss.str();
+    return t_str;
   }
 
 	//! Constructor
@@ -34,8 +45,11 @@ struct lattice_node2
   PAT* _pat;//!< Store a pattern in lattice node
   vector<V_T> _vids; //!< Store id of vertex in current subgraph
   vector<L_NODE*> _neighbors;//!< Store all the neighbors of a node
+
   vector<double> _neighbor_prob;
   int _super_cnt;
+
+  string _key=NULL;
 };
 
 
