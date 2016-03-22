@@ -113,9 +113,18 @@ class Uniform_SubGraph_Random_Walk
     while(next==NULL)
     {
         //next = random 1 neighbor of _last_node
+            // random 1 neighbor
+
+                //kiem tra co con connected hay ko
+
+                //Neu connect:
+                    //them 1 dinh bk trong ds canh ke cua cac dinh con lai
+                //Neu ko connect:
+                    //tim dinh ke chung cua 2 dinh bi dut
+            // sau khi tìm duoc dỉnh để remove và đỉnh để add thì xây dựng subgraph mới y
         //tinh score of y
+
         //check probability
-        //
         next = _last_node; //gan tam de cho ko bi loi
     }
 
@@ -153,10 +162,10 @@ class Uniform_SubGraph_Random_Walk
     //khoi tao cac field: score, neighbors
 
     if (n->_is_processed) return;
-    PAT* p = n->_pat;
+        PAT* p = n->_pat;
 
-    vector<int> vids = n->_vids;
-    vector<vector<int> > nbs_vids(vids.size());
+    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+    vector<vector<int> > nbs_vids(vids.size()); // chứa các neighbor của từng đỉnh
 
     int dx = _pf->count_neighbor_subgraph(_graph,vids,nbs_vids);
     cout<<"neighbors count: "<<dx<<endl;
@@ -247,19 +256,19 @@ class Uniform_SubGraph_Random_Walk
 //=======================================================================================
 
   private:
-  NODE_MAP _node_map;	//!< store all lattice node.
-  PatternFactory<PAT>* _pf;//!< a PatternFactory object
+  NODE_MAP _node_map;	// hashtable of lattice node, save all lattice node are processed //!< store all lattice node.
+  PatternFactory<PAT>* _pf; // unity class to process graphs and subgraphs //!< a PatternFactory object
   PAT* _last;//!< store last node of the random walk.
   vector<int> _last_vids;
-  LATTICE_NODE* _last_node;
+  LATTICE_NODE* _last_node; // current node (current subgraph), chứa danh sách các Lattice_node là neighbor của nó.
 
   bool _isInitialized = false;
 
   time_tracker tt;
-  int _graph_id;
-  int _subgraph_size;
-  DATABASE* _database;
-  PAT* _graph ;
+  int _graph_id; //id of super graph
+  int _subgraph_size;// size of subgraph will be sampled
+  DATABASE* _database; // the pointer to database
+  PAT* _graph ; //pointer to super graph
 };
 
 #endif

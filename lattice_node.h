@@ -55,14 +55,14 @@ struct lattice_node
   {
   }
 
-  bool _is_processed; //!< it is true, when we know all neighbors and their status of this pattern
+  bool _is_processed; //xem node này đã khởi tạo đầy đủ hay chưa. Nếu là false thì chỉ dùng _vids thôi.//!< it is true, when we know all neighbors and their status of this pattern
   PAT* _pat;//!< Store a pattern in lattice node
   vector<V_T> _vids; //!< Store id of vertex in current subgraph
   vector<L_NODE*> _neighbors;//!< Store all the neighbors of a node
   vector<double> _neighbor_prob;
   int _super_cnt;
 
-  string _key;
+  string _key; // phân biệt các node với nhau
   //vector<pair<V_T,vector<V_T> > > _nbsList; // pair<vid, replaceable vids>
 };
 

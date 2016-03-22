@@ -122,8 +122,9 @@ int main(int argc, char *argv[]) {
     }else{
       rdw = it->second;
     }
+
     double h_score ;
-    PAT* h = rdw->sampling_subgraph(h_score);
+    PAT* h = rdw->sampling_subgraph(h_score); // return a subgraph and it's score
     if (h!=NULL){
       cout<<"Sampled subgraph: "<<endl;
       cout<<*h;

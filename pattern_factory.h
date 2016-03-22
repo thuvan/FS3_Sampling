@@ -124,12 +124,12 @@ class PatternFactory {
   int count_neighbor_subgraph(PAT* graph, vector<int>& vids,vector<vector<int> >& nbs_vids)
   {
     int c=0;
-    for(int i=0;i<vids.size();i++)
+    for(int i=0;i<vids.size();i++) // chạy từng đỉnh một
     {
       vector<int> nb;
       for(int h=0;h<vids.size();h++)
       {
-        if (h==i)
+        if (h==i) // nếu là đỉnh đang duyệt thì bỏ qua. có nghĩa là chỉ duyệt neighbor của các đỉnh còn lại
           continue;
         graph->get_adj_matrix()->neighbors(vids[h],nb);
       }
@@ -145,8 +145,11 @@ class PatternFactory {
           }
         if (!isInSubgraph)
         {
-          nbs_vids[i].push_back(nb[j]);
-          c++;
+            std::vector<int>::iterator it;
+            it = find (nbs_vids[i].begin(), nbs_vids[i].end(), nb[j]);
+            if(it == nbs_vids[i].end()) // check id is existed at nbs_vids[i] or not?
+              nbs_vids[i].push_back(nb[j]);
+            c++;
         }
       }
     }
