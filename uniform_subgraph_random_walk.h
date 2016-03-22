@@ -22,7 +22,7 @@ class Uniform_SubGraph_Random_Walk
 {
 
   public:
-
+  //typedef typename PAT::VERTEX_T V_T;
   typedef lattice_node<PAT> LATTICE_NODE;
   typedef HASHNS::hash_map<string, LATTICE_NODE*, hash_func<string>, equal_to<string> > NODE_MAP;
   typedef typename NODE_MAP::iterator NS_IT;
@@ -49,23 +49,20 @@ class Uniform_SubGraph_Random_Walk
     return _pf;
   }
 
-  // random walk manager initialize with a frequent pattern node
-	/*! \fn LATTICE_NODE* initialize()
- 		*  \brief A member function to initialize the walk in itemset Lattice. Initialization completed
-		*		by selecting an size one frequent pattern.
- 		*  \return a pointer of LATTICE_NODE type.
- 		*/
-  LATTICE_NODE* initialize() {
+  /*! \fn LATTICE_NODE* create_lattice_node(PAT*& p)
+ 		*  \brief A member function to create a new lattice node.
+		*	 It first check whether the pattern p come as parameter is already a lattice node from its canonical code.
+		*	 If not a new lattice node is created.
+		*	\param p a reference of a pointer of PAT.
+		* \return a pointer of LATTICE_NODE
+	*/
+  LATTICE_NODE* create_lattice_node(vector<int>& vids) {
     LATTICE_NODE* lNode = new LATTICE_NODE();
-
-    //get random vertex id
-    _pf->get_random_subgraph(_graph, _subgraph_size,lNode->_vids);
-
-//    cout<<"vertex indexs: ";
-//    for(int i=0;i<lNode->_vids.size();i++)
-//      cout<<lNode->_vids[i]<<" ";
-//    cout<<endl;
-
+    for(int i=0;i<vids.size();i++)
+    {
+      lNode->_vids.push_back(vids[i]);
+      //lNode->_nbs_vids.push_back(new vector<int>());
+    }
     //get key code for Lattice node
     std::string node_key = lNode->get_key();
     cout<<"code: "<<node_key<<endl;
@@ -79,28 +76,57 @@ class Uniform_SubGraph_Random_Walk
     LATTICE_NODE* node = exists(node_key);
     if (node == 0) {  // new pattern
       node = lNode;
-      //create subgraph instance
-      ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
-      PAT* p = _pf->make_subgraph_from_vids(_graph,lNode->_vids);
-      const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-      p->set_canonical_code(cc);
-      node->_pat = p;
-
       node->_is_processed = false;
       insert_lattice_node(node_key, node);
     }
     else {
-      //delete p;
-      //p = node->_pat;
       delete lNode;
     }
 
-    //_last_node = create_lattice_node(_graph,vids);
-    _last_node = node;
-    process_node(_last_node);
+    return node;
+  }
 
+
+  // random walk manager initialize with a frequent pattern node
+	/*! \fn LATTICE_NODE* initialize()
+ 		*  \brief A member function to initialize the walk in itemset Lattice. Initialization completed
+		*		by selecting an size one frequent pattern.
+ 		*  \return a pointer of LATTICE_NODE type.
+ 		*/
+  LATTICE_NODE* initialize() {
+    vector<int> vids; //!< Store id of vertex in current subgraph
+
+    //get random vertex id
+    _pf->get_random_subgraph(_graph, _subgraph_size,vids);
+
+    LATTICE_NODE* lNode;
+    lNode = create_lattice_node(vids);
+
+//    cout<<"vertex indexs: ";
+//    for(int i=0;i<lNode->_vids.size();i++)
+//      cout<<lNode->_vids[i]<<" ";
+//    cout<<endl;
+
+    //_last_node = create_lattice_node(_graph,vids);
+    _last_node = lNode;
     _isInitialized=true;
     return _last_node;
+  }
+
+  	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
+ 		*  \brief A member function to get next node on itemset lattice to jump from current.
+		*	 Acceptance probability calculation of Metropolis-Hastings
+		* algorithm is implemented here.
+		*	\param current a pointer of LATTICE_NODE.
+		* \return a pointer of LATTICE_NODE.
+	*/
+  LATTICE_NODE* get_random_next(LATTICE_NODE* current){
+    vector<int> vids;
+    int idx = boost_get_a_random_number(0,current->_neighbors_count);
+    current->get_neighbor_at(idx,vids);
+
+    LATTICE_NODE* lNode = create_lattice_node(vids);
+    return lNode;
   }
 
   PAT* sampling_subgraph(double& score)
@@ -108,10 +134,14 @@ class Uniform_SubGraph_Random_Walk
     if(!_isInitialized)
       _last_node = initialize();
 
-     LATTICE_NODE* next=NULL;
+    process_node(_last_node);
+
+    LATTICE_NODE* next=NULL;
     ///TODO: viet vong while o day
     while(next==NULL)
     {
+      next = get_random_next(_last_node);
+      process_node(next);
         //next = random 1 neighbor of _last_node
             // random 1 neighbor
 
@@ -125,7 +155,6 @@ class Uniform_SubGraph_Random_Walk
         //tinh score of y
 
         //check probability
-        next = _last_node; //gan tam de cho ko bi loi
     }
 
     //return next->_pat;;
@@ -157,25 +186,36 @@ class Uniform_SubGraph_Random_Walk
 		* It also perform the degree calculation of n as well as of all minned super and sup patterns.
 		*	\param n a LATTICE_NODE pointer
 	*/
-  void process_node(LATTICE_NODE* n) {
-    ///TODO:
-    //khoi tao cac field: score, neighbors
+  void process_node(LATTICE_NODE* n)
+  {
+    if (n->_is_processed)
+      return;
+    //khoi tao mang neighbor_vids
+    for(int i=0;i<n->_vids.size();i++)
+    {
+      n->_nbs_vids.push_back(new vector<int>());
+    }
 
-    if (n->_is_processed) return;
-        PAT* p = n->_pat;
+    int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
+    n->_neighbors_count = dx;
 
     vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-    vector<vector<int> > nbs_vids(vids.size()); // chứa các neighbor của từng đỉnh
+    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
 
-    int dx = _pf->count_neighbor_subgraph(_graph,vids,nbs_vids);
     cout<<"neighbors count: "<<dx<<endl;
     for(int i=0;i<nbs_vids.size();i++)
     {
-      cout<<i<<": ";
-      for (int j=0;j<nbs_vids[i].size();j++)
-        cout<<nbs_vids[i][j]<<" ";
+      cout<<i<<") v"<<vids[i]<<": ";
+      for (int j=0;j<nbs_vids[i]->size();j++)
+        cout<<nbs_vids[i]->operator[](j)<<" ";
       cout<<endl;
     }
+
+    ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
+    PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
+    const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+    p->set_canonical_code(cc);
+    n->_pat = p;
 
     cout << "Current pattern:\n";
     cout << *p;

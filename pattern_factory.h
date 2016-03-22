@@ -121,7 +121,7 @@ class PatternFactory {
       int v_count = 2;
     }
 
-  int count_neighbor_subgraph(PAT* graph, vector<int>& vids,vector<vector<int> >& nbs_vids)
+  int count_neighbor_subgraph(PAT* graph, vector<int>& vids,vector<vector<int>* >& nbs_vids)
   {
     int c=0;
     for(int i=0;i<vids.size();i++) // chạy từng đỉnh một
@@ -136,6 +136,7 @@ class PatternFactory {
       //Check if neighbor vertex is not in subgraph => add to neighbor vector
       for(int j=0;j<nb.size();j++)
       {
+        //check node j is already in subgraph
         bool isInSubgraph=false;
         for (int k=0;k<vids.size();k++)
           if (nb[j]== vids[k])
@@ -143,13 +144,16 @@ class PatternFactory {
             isInSubgraph =true;
             break;
           }
-        if (!isInSubgraph)
-        {
-            std::vector<int>::iterator it;
-            it = find (nbs_vids[i].begin(), nbs_vids[i].end(), nb[j]);
-            if(it == nbs_vids[i].end()) // check id is existed at nbs_vids[i] or not?
-              nbs_vids[i].push_back(nb[j]);
-            c++;
+
+        if (isInSubgraph)
+          continue;
+
+        //check if node j is already added
+        std::vector<int>::iterator it;
+        it = find (nbs_vids[i]->begin(), nbs_vids[i]->end(), nb[j]);
+        if(it == nbs_vids[i]->end()){ // check id is existed at nbs_vids[i] or not?
+          nbs_vids[i]->push_back(nb[j]);
+          c++;
         }
       }
     }

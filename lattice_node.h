@@ -42,6 +42,37 @@ struct lattice_node
     return t_str;
   }
 
+  //get neighbor by index
+  void get_neighbor_at(int idx,vector<int>& ret_vids)
+  {
+    if (idx<0 || idx >= _neighbors_count)
+    {
+      cout<<"error, index out of range"<<endl;
+      return ;
+    }
+    int rm_idx=-1;
+    int add = -1;
+    int c=0;
+    bool found = false;
+
+    for(int i=0;i<_vids.size();i++)
+    {
+      for(int j=0;j<_nbs_vids[i]->size();j++)
+      {
+          if (c == idx)
+          {
+            for(int k=0;k<_vids.size();k++)
+              if (k!=i)
+                ret_vids.push_back(_vids[k]);
+              else
+                ret_vids.push_back(_nbs_vids[i]->operator[](j));
+
+            return;
+          }
+          c++;
+      }
+    }
+  }
 
 	//! Constructor
   lattice_node(PAT* p) {
@@ -58,8 +89,13 @@ struct lattice_node
   bool _is_processed; //xem node này đã khởi tạo đầy đủ hay chưa. Nếu là false thì chỉ dùng _vids thôi.//!< it is true, when we know all neighbors and their status of this pattern
   PAT* _pat;//!< Store a pattern in lattice node
   vector<V_T> _vids; //!< Store id of vertex in current subgraph
+  vector<vector<int>* > _nbs_vids; // chứa các neighbor của từng đỉnh
+  int _neighbors_count; //number of neighbors
+
+
   vector<L_NODE*> _neighbors;//!< Store all the neighbors of a node
   vector<double> _neighbor_prob;
+
   int _super_cnt;
 
   string _key; // phân biệt các node với nhau
