@@ -22,7 +22,12 @@ class Uniform_SubGraph_Random_Walk
 {
 
   public:
-  //typedef typename PAT::VERTEX_T V_T;
+  typedef typename PAT::VERTEX_T V_T;
+  typedef typename PAT::EDGE_T E_T;
+  typedef typename PAT::EDGE EDGE;
+  typedef typename multiset<EDGE>::iterator EDGE_IT;
+  typedef typename multiset<EDGE>::const_iterator EDGE_CIT;
+
   typedef lattice_node<PAT> LATTICE_NODE;
   typedef HASHNS::hash_map<string, LATTICE_NODE*, hash_func<string>, equal_to<string> > NODE_MAP;
   typedef typename NODE_MAP::iterator NS_IT;
@@ -136,29 +141,68 @@ class Uniform_SubGraph_Random_Walk
 
     process_node(_last_node);
 
+    double score_x = _last_node->_score;
+    double nbs_x = _last_node->_neighbors_count;
+
     LATTICE_NODE* next=NULL;
     ///TODO: viet vong while o day
     while(next==NULL)
     {
       next = get_random_next(_last_node);
       process_node(next);
-        //next = random 1 neighbor of _last_node
-            // random 1 neighbor
-
-                //kiem tra co con connected hay ko
-
-                //Neu connect:
-                    //them 1 dinh bk trong ds canh ke cua cac dinh con lai
-                //Neu ko connect:
-                    //tim dinh ke chung cua 2 dinh bi dut
-            // sau khi tìm duoc dỉnh để remove và đỉnh để add thì xây dựng subgraph mới y
-        //tinh score of y
-
-        //check probability
+      //tinh score of y
+      double score_y = next->_score;
+      double nbs_y = next->_neighbors_count;
+      double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
+      double accp_probablility = accp_value<=1?accp_value:1;
+      double rd = random_uni01();
+      //check probability
+      if (rd <= accp_probablility){
+        _last_node = next;
+        break;
+      }
+      next = NULL;
     }
+    score = _last_node->_score;
+    return _last_node->_pat;
+  }
 
-    //return next->_pat;;
-    return next->_pat;
+  double compute_score(LATTICE_NODE* lNode)
+  {
+    double score;
+    PAT* pat = lNode->_pat;
+    const multiset<EDGE>& mset = pat->get_edgeset();
+    //vector<int> spset_intersec;
+    lNode->_support_set=new vector<int>();
+
+    //multiset<int>::iterator it;
+    for (EDGE_IT it=mset.begin(); it!=mset.end(); ++it)
+    {
+      vector<int> spset = _database->get_support_set(*it);
+      if(lNode->_support_set->size()==0)
+      {
+        for(int i=0;i<spset.size();i++)
+          lNode->_support_set->push_back(spset[i]);
+      }
+      else
+      {
+        //remove
+        for(int i=lNode->_support_set->size()-1;i>=0;i--)
+        {
+          bool found=false;
+          for(int j=0;j<spset.size();j++)
+            if (lNode->_support_set->operator[](i)==spset[j])
+            {
+              found = true;
+              break;
+            }
+          if (!found)
+            lNode->_support_set->erase (lNode->_support_set->begin()+i);
+        }
+      }
+    }
+    lNode->_score = lNode->_support_set->size();
+    return lNode->_support_set->size();
   }
 
 	/*! \fn LATTICE_NODE* exists(string p)
@@ -219,10 +263,8 @@ class Uniform_SubGraph_Random_Walk
 
     cout << "Current pattern:\n";
     cout << *p;
-    //vector<PAT*> neighbors;
-    //_pf->get_neighbors_subgraph(p,n->_vids, neighbors);
-    //cout << "Its neighbors:" << endl;
-    //cout << "Total neighbors="<< neighbors.size() << endl;
+
+    compute_score(n);
 
     n->_is_processed=true;
   }

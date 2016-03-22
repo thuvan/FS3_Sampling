@@ -91,7 +91,8 @@ struct lattice_node
   vector<V_T> _vids; //!< Store id of vertex in current subgraph
   vector<vector<int>* > _nbs_vids; // chứa các neighbor của từng đỉnh
   int _neighbors_count; //number of neighbors
-
+  double _score;
+  vector<int>* _support_set;
 
   vector<L_NODE*> _neighbors;//!< Store all the neighbors of a node
   vector<double> _neighbor_prob;
