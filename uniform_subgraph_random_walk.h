@@ -142,19 +142,10 @@ class Uniform_SubGraph_Random_Walk
     {
       next = get_random_next(_last_node);
       process_node(next);
-        //next = random 1 neighbor of _last_node
-            // random 1 neighbor
 
-                //kiem tra co con connected hay ko
+    //tinh score of y
 
-                //Neu connect:
-                    //them 1 dinh bk trong ds canh ke cua cac dinh con lai
-                //Neu ko connect:
-                    //tim dinh ke chung cua 2 dinh bi dut
-            // sau khi tìm duoc dỉnh để remove và đỉnh để add thì xây dựng subgraph mới y
-        //tinh score of y
-
-        //check probability
+    //check probability
     }
 
     //return next->_pat;;
