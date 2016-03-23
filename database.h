@@ -143,6 +143,21 @@ class Database {
       return -1;
     }
 
+    /*! \fn vector<int> get_support_set(EDGE edge)
+		 *  \brief A member function returning support set of a given edge e as parameter.
+		 *  \param e an EDGE type.
+		 *  \return vector of support graphs.
+		 */
+    vector<int> get_support_set(EDGE e)
+    {
+      INFO_CIT cit = _edge_info.find(e);
+      if (cit == _edge_info.end())
+        cout<<"error: database.get_support_set edge not found"<<endl;
+
+      return cit->second.first;
+    }
+
+
 		/*! \fn EDGE get_a_freq_edge() const
 		 *  \brief A member function returning a frequent edge.
 		 *  \return an EDGE.
