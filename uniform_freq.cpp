@@ -2,6 +2,8 @@
 #include <iostream>
 #include "database.h"
 #include "uniform_subgraph_random_walk.h"
+#include <queue>
+#include "vectorUtility.h"
 
 using namespace std;
 
@@ -9,6 +11,7 @@ char* datafile;
 int subgraph_size;
 int uniq_pat_count;
 int max_iter;
+int top_k = 3;
 
 typedef ExPattern<int, int> PAT;
 typedef Uniform_SubGraph_Random_Walk<PAT> RANDOM_WALK;
@@ -22,12 +25,131 @@ template<> PatternFactory<PAT>* PatternFactory<PAT>::_instance = PatternFactory<
 
 class Queue_Item{
 public:
+  void print(){
+    cout<<"score= "<<score<<"\t time= "<<insert_time<<endl;
+    cout<<"idset = <";
+    for(int i=0;i<idset.size();i++)
+      cout<<idset[i]<<",";
+    cout<<">"<<endl;
+    cout<<"subgraph: "<<endl;
+    cout<<*subgraph<<endl;
+  }
+  ///TODO: score cua subgraph o moi graph co the khac nhau => score luu score o graph nao?
   double score;
   vector<int> idset;
   long insert_time;
-  PAT subgraph;
+  PAT* subgraph;
 };
 
+class Priority_Queue
+{
+//  class priority_queue_comparison
+//  {
+//  public:
+//    bool operator() (const Queue_Item& a, const Queue_Item& b) const
+//    {
+//      if (a.idset.size()<b.idset.size())
+//        return true;
+//      else if (a.idset.size()==b.idset.size())
+//        if (a.score<b.score)
+//          return true;
+//        else if (a.score == b.score )
+//          ///TODO: check lai cho so sanh nay, ko biet dung hay sai
+//          if (a.insert_time < b.insert_time)
+//            return true;
+//      return false;
+//    }
+//  };
+//
+//  //typedef std::priority_queue<Queue_Item, std::vector<Queue_Item>, priority_queue_comparison> priority_queue2;
+
+  bool compare(const Queue_Item* a, const Queue_Item* b) const
+    {
+      if (a->idset.size()<b->idset.size())
+        return true;
+      else if (a->idset.size()==b->idset.size())
+        if (a->score<b->score)
+          return true;
+        else if (a->score == b->score )
+          ///TODO: check lai cho so sanh nay, ko biet dung hay sai
+          if (a->insert_time < b->insert_time)
+            return true;
+      return false;
+    }
+
+  public:
+    Priority_Queue(int max_size)
+    {
+      _max_size = max_size;
+    }
+    void push(Queue_Item* item)
+    {
+      if(_data.size()==0){
+        _data.push_back(item);
+        return;
+      }
+      int i=_data.size()-1;
+      if (compare(item, _data[i])){
+        _data.push_back(item);
+        return;
+      }else
+        _data.push_back(_data[i]);
+
+      while (i>0 && compare(item,_data[i-1])){
+        _data[i]=_data[i-1];
+        i--;
+      }
+      _data[i] = item;
+    }
+    void evictLast()
+    {
+      if (_data.size()>0)
+        _data.erase(_data.begin());
+    }
+
+    void print()
+    {
+      for(int i=0;i<_data.size();i++){
+        Queue_Item* item = _data[i];
+        cout<<i<<"): "<<endl;
+        item->print();
+      }
+
+    }
+
+    int size(){ return _data.size();}
+
+    bool isFull(){return _data.size()>=_max_size; }
+
+    double getHalfAvgScore()
+    {
+      int half = _data.size()/2;
+      double sumScore = 0;
+      for(int i=0;i<half;i++)
+        sumScore += _data[i]->score;
+      return sumScore/half;
+    }
+
+    Queue_Item* findByGraph(PAT* g)
+    {
+      string str = g->get_canonical_code().to_string();
+      cout<<"DEBUG: findByGraph, str_code = "<<str<<endl;
+
+      for(int i=0;i<_data.size();i++){
+        string str2 = _data[i]->subgraph->get_canonical_code().to_string();
+        cout<<"DEBUG: findByGraph, str_code2 = "<<str2<<endl;
+        if (str.compare(_data[i]->subgraph->get_canonical_code().to_string())==0)
+          return _data[i];
+      }
+      return NULL;
+    }
+
+    int _max_size;
+    vector<Queue_Item*> _data;
+
+    //priority_queue2 data;
+
+};
 
 void print_usage(char *prog) {
   cerr<<"Usage: "<<prog<<" -d data-file -c count -s subgraph-size"<<endl;
@@ -49,6 +171,9 @@ void parse_args(int argc, char* argv[]) {
     }
     else if(strcmp(argv[i],"-c") == 0){
       max_iter=atoi(argv[++i]);
+    }
+    else if(strcmp(argv[i],"-k") == 0){
+      top_k=atoi(argv[++i]);
     }
     else{
       print_usage(argv[0]);
@@ -82,6 +207,8 @@ int main(int argc, char *argv[]) {
 
 	bool zero_neighbors;
   parse_args(argc, argv);
+
+
   Database<PAT>* database;
   /* creating database and loading data */
   try {
@@ -103,6 +230,8 @@ int main(int argc, char *argv[]) {
 
   PAT* g;
   max_iter = 2;
+
+  Priority_Queue Q(top_k*2);
 
   while (cur_iter<=max_iter){
     cur_iter++;
@@ -130,74 +259,39 @@ int main(int argc, char *argv[]) {
       cout<<*h;
     }
 
-//    const typename PAT::CAN_CODE& cc = check_isomorphism(g);
-//    g->set_canonical_code(cc);
-//    cout << g->get_canonical_code().to_string() << endl;
-//
-//    //lay sanh sach cac vertex
-//    int vcount = g->size();
-//    cout<<"graph size: "<<vcount<<endl;
-//
-//    vector<int> ret;
-//    int vid = vcount/2;
-//    int label = g->label(vid);
-//    cout <<"Vid: "<<vid<<", label: "<<label<<endl;
-//
-//    g->get_adj_matrix()->neighbors(vid,ret);
-//    cout<< "neighbor of "<<vid<<": "<<ret.size()<<endl;
-//
-//    for(int iv=0;iv<ret.size();iv++)
-//      cout << ret[iv] << " ";
-//    cout<<endl;
-//
-//    //lay canh ke
-//    int vid2 = ret[0];
-//    bool connected = g->edge_exist(vid,vid2);
-//
-//    if (connected)
-//      cout<<"edge "<<vid<<"->"<<vid2<<" exist: "<<g->get_edge_label(vid,vid2)<<endl;
-//    else
-//      cout<<"edge "<<vid<<"->"<<vid2<<" not exist"<<endl;
-//    vector<int> a;
+    if (Q.isFull() && h_score<Q.getHalfAvgScore())
+      continue;
 
+    Queue_Item* qItem = Q.findByGraph(h);
+    if (qItem!=NULL)
+    {
+      ///TODO: hoi ngu: sao ko thay update h_score?
+      int preSupport = qItem->idset.size();
+      int idx = find_in_vector(qItem->idset,graph_id);
+      if (idx==-1){
+        qItem->idset.push_back(graph_id);
+        qItem->insert_time = cur_iter;
+      }
+    }
+    else
+    {
+      if (Q.isFull())
+        Q.evictLast();
 
-
-//    vector<int> vids_of_label;
-//    //lay danh sach vertex theo label
-//    g->get_vids_for_this_label(label,vids_of_label);
-//    cout<<"vids of label "<<label<<": "<<vids_of_label.size()<<endl;
-//    for(int i=0;i<vids_of_label.size();i++)
-//      cout<<vids_of_label[i]<<" ";
-//    cout<<endl;
-
-
-
-    //sampling subgraph of the selected graph using Random walk
-    //Queue_Item subgraph = sampling_subgraph(rdw_map,database,graph_id,subgraph_size);
-
-//    double h_score = compute_score(database,sub_graph);
-//    if (queue.is_full() && (score < queue.lower_Half_Avg_Score()))
-//      continue;
-//
-//    CAN_CODE h_code = sub_graph->get_canonical_code();
-//    if (queue.contain(h_code)){
-//      prev_support = sub_graph->get_su
-//    }
-
+      qItem = new Queue_Item();
+      qItem->subgraph = h;
+      qItem->idset.push_back(graph_id);
+      qItem->insert_time = cur_iter;
+      ///TODO: score cua subgraph o moi graph co the khac nhau => score luu score o graph nao?
+      qItem->score = h_score;
+      Q.push(qItem);
+    }
   }
-
+  cout<<"==============================="<<endl;
+  cout<<"SAMPLING RESULT"<<endl;
+  Q.print();
+  ///TODO: delete random_walks, delete Queue
   delete database;
+  cout << "FINISHED, PRESS ENTER TO EXIST!"<<endl;
   getchar();
-
-  /* creating random_walk_manager and starting walk */
-//  Uniform_Freq_Random_Walk<PAT> rwm(database, max_iter);
-//
-//	//will call initialize followed by walk again and again until it gets a single edge pattern with some neighbors.
-//	do {
-//    lattice_node<PAT>* start = rwm.initialize();
-//    zero_neighbors = rwm.walk(start,cur_iter);
-//  } while (zero_neighbors == 0);
-//
-//  delete database;
-
 }

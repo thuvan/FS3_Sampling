@@ -2,12 +2,15 @@
 #ifndef _VECTOR_UTILITY_H
 #define _VECTOR_UTILITY_H
 
-#include <ext/hash_set>
-#include "graph_iso_check.h"
 #include <algorithm>
-#include "helper_funs.h"
-#include "pattern_factory.h"
+#include<vector>
 
-
+int find_in_vector(const vector<int>& v, const int& value)
+{
+  for(int i=0;i<v.size();i++)
+    if (v[i]==value)
+      return i;
+  return -1;
+}
 
 #endif
