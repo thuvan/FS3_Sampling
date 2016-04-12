@@ -167,6 +167,60 @@ class Uniform_SubGraph_Random_Walk
     return _last_node->_pat;
   }
 
+  PAT* sampling_subgraph_by_Edge_Graph(double& score)
+  {
+    if(!_isInitialized)
+      _last_node = initialize();
+
+    process_node(_last_node);
+    //
+    // Duyet tat ca cac dinh của _last_node
+    vector<int> vids = _last_node->_vids;
+
+    for(int i=0;i<vids.size();i++)
+    {
+        // Calculate Rank của từng đỉnh
+
+        // Sort tăng theo rank của đỉnh, gọi tập này là Nodes
+    }
+
+
+    // While( node t in nodes)
+
+        // Tìm các đỉnh mà nó có thể thay thế gọi là NodeAddSet
+
+            // tạo ra subgraph y mới bằng cách bỏ node đó và thay bằng node có rank lớn nhất trong B
+
+            // Break;
+
+    //  Tính Frequency of subgraph y bằng cách
+
+    double score_x = _last_node->_score;
+    double nbs_x = _last_node->_neighbors_count;
+
+    LATTICE_NODE* next=NULL;
+    ///TODO: viet vong while o day
+    while(next==NULL)
+    {
+      next = get_random_next(_last_node);
+      process_node(next);
+      //tinh score of y
+      double score_y = next->_score;
+      double nbs_y = next->_neighbors_count;
+      double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
+      double accp_probablility = accp_value<=1?accp_value:1;
+      double rd = random_uni01();
+      //check probability
+      if (rd <= accp_probablility){
+        _last_node = next;
+        break;
+      }
+      next = NULL;
+    }
+    score = _last_node->_score;
+    return _last_node->_pat;
+  }
+
   double compute_score(LATTICE_NODE* lNode)
   {
     double score;

@@ -342,6 +342,17 @@ class Database {
       return idx;
     }
 
+    //
+    int get_random_GraphID_by_FirstRow(){
+        EDGE_INFO_MAP all = get_all_edge_info();
+    }
+
+    //
+    int get_random_GraphID(){
+
+    }
+
+
     PAT_T* get_graph_by_id(int id){
       return _graph_store[id];
     }
