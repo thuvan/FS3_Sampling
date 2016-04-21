@@ -233,6 +233,7 @@ int main(int argc, char *argv[]) {
 
   Priority_Queue Q(top_k*2);
 
+  /*
 while (cur_iter<=max_iter){
     cur_iter++;
     int graph_id;
@@ -295,7 +296,7 @@ while (cur_iter<=max_iter){
     }
 }
 
-
+*/
   while (cur_iter<=max_iter){
     cur_iter++;
     int graph_id;
