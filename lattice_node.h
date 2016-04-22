@@ -14,7 +14,7 @@ struct lattice_node
 {
 
   typedef lattice_node<PAT> L_NODE;
-  typedef typename PAT::VERTEX_T V_T;
+  //typedef typename PAT::VERTEX_T V_T;
   typedef typename PAT::EDGE_T E_T;
   typedef pair<int, int> EDGE;
 
@@ -30,7 +30,7 @@ struct lattice_node
     return _key;
   }
 
-  string createKey(vector<V_T> vids)
+  string createKey(vector<int> vids)
   {
     ostringstream t_ss;
     //sort vids
@@ -42,6 +42,12 @@ struct lattice_node
     return t_str;
   }
 
+  vector<int>* get_neighbors_of_vid(int vid){
+    for(int i=0; i<_vids.size();i++)
+      if (_vids[i]==vid)
+        return _nbs_vids[i];
+    return NULL;
+  }
   //get neighbor by index
   void get_neighbor_at(int idx,vector<int>& ret_vids)
   {
@@ -78,7 +84,7 @@ struct lattice_node
   lattice_node(PAT* p) {
     _pat = p;
   }
-  lattice_node(PAT* p,vector<V_T> vids) {
+  lattice_node(PAT* p,vector<int> vids) {
     _pat = p;
     _vids = vids;
   }
@@ -88,7 +94,7 @@ struct lattice_node
 
   bool _is_processed; //xem node này đã khởi tạo đầy đủ hay chưa. Nếu là false thì chỉ dùng _vids thôi.//!< it is true, when we know all neighbors and their status of this pattern
   PAT* _pat;//!< Store a pattern in lattice node
-  vector<V_T> _vids; //!< Store id of vertex in current subgraph
+  vector<int> _vids; //!< Store id of vertex in current subgraph
   vector<vector<int>* > _nbs_vids; // chứa các neighbor của từng đỉnh
   int _neighbors_count; //number of neighbors
   double _score;

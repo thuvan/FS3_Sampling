@@ -99,8 +99,8 @@ class Priority_Queue
       cout<<"DEBUG: findByGraph, str_code = "<<str<<endl;
 
       for(int i=0;i<_data.size();i++){
-        string str2 = _data[i]->subgraph->get_canonical_code().to_string();
-        cout<<"DEBUG: findByGraph, str_code2 = "<<str2<<endl;
+//        string str2 = _data[i]->subgraph->get_canonical_code().to_string();
+//        cout<<"DEBUG: findByGraph, str_code2 = "<<str2<<endl;
         if (str.compare(_data[i]->subgraph->get_canonical_code().to_string())==0)
           return _data[i];
       }

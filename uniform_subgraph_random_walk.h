@@ -134,6 +134,56 @@ class Uniform_SubGraph_Random_Walk
     return lNode;
   }
 
+   	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
+ 		*  \brief A member function to get next node on itemset lattice to jump from current.
+		*	 Acceptance probability calculation of Metropolis-Hastings
+		* algorithm is implemented here.
+		*	\param current a pointer of LATTICE_NODE.
+		* \return a pointer of LATTICE_NODE.
+	*/
+  LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
+    //
+    // Duyet tat ca cac dinh của _last_node
+
+    vector<double> vrank(current->_vids.size());
+    for(int i=0;i<current->_vids.size();i++)
+    {
+      int vid = current->_vids[i];
+      V_T vlb = current->_pat->label(vid);
+      //rank of v = frequency(v) * #neighbor(v);
+      int vfreq = _database->get_vertex_frequency(vlb);
+      // Calculate Rank của từng đỉnh ??
+      /// rank cua 1 dinh tinh nhu the nao?
+      int nb_count = current->get_neighbors_of_vid(vid)->size();
+      vrank[i] = vfreq*nb_count; ///OPINION: frequency of vertex is very large compare to number of its neighbor
+    }
+    //select vertex for remove: select vertex co rank min
+    double minRank = vrank[0];
+    int selectedIndex = 0;
+    for(int i=1;i<vrank.size();i++)
+    if (vrank[i]<minRank){
+      minRank = vrank[i];
+      selectedIndex = i;
+    }
+    int removeVid = current->_vids[selectedIndex];
+
+    vector<int>* replacableVids = current->get_neighbors_of_vid(removeVid);
+    ///select a neighbor of the selected vertex for replace: select vertex that have highest rank
+
+
+    // While( node t in nodes)
+
+        // Tìm các đỉnh mà nó có thể thay thế gọi là NodeAddSet
+
+            // tạo ra subgraph y mới bằng cách bỏ node đó và thay bằng node có rank lớn nhất trong B
+
+            // Break;
+
+    //  Tính Frequency of subgraph y bằng cách
+  }
+
+
+
   PAT* sampling_subgraph(double& score)
   {
     if(!_isInitialized)
@@ -173,29 +223,6 @@ class Uniform_SubGraph_Random_Walk
       _last_node = initialize();
 
     process_node(_last_node);
-    //
-    // Duyet tat ca cac dinh của _last_node
-    vector<int> vids = _last_node->_vids;
-
-    for(int i=0;i<vids.size();i++)
-    {
-        // Calculate Rank của từng đỉnh ??
-        /// rank cua 1 dinh tinh nhu the nao?
-
-        // Sort tăng theo rank của đỉnh, gọi tập này là Nodes
-    }
-
-
-    // While( node t in nodes)
-
-        // Tìm các đỉnh mà nó có thể thay thế gọi là NodeAddSet
-
-            // tạo ra subgraph y mới bằng cách bỏ node đó và thay bằng node có rank lớn nhất trong B
-
-            // Break;
-
-    //  Tính Frequency of subgraph y bằng cách
-
     double score_x = _last_node->_score;
     double nbs_x = _last_node->_neighbors_count;
 
