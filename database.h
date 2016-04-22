@@ -3,6 +3,7 @@
 #ifndef _DATABASE_H_
 #define _DATABASE_H_
 
+#include <algorithm>
 #include <fstream>
 #include <exception>
 #include <iostream>
@@ -107,6 +108,60 @@ class Database {
         if (ret_val == -1) break;
       }
       cout << "total graph in database:" << _graph_store.size() << endl;
+    }
+
+    bool comp(const pair<EDGE,int>& a, const pair<EDGE,int>& b) {
+      return a.second > b.second;
+    }
+
+    void build_ordered_edges_list(){
+      //typedef std::pair<pair<V_Tint, V_Tint>, E_Tint> EDGE; //!< Type definition of EDGE
+      //typedef map<EDGE, pair<vector<int>, int > > EDGE_INFO_MAP; //!< vector store which transaction it occurs, int stores its maximum frequency in any graph
+      //typedef typename EDGE_INFO_MAP::iterator INFO_IT; //!< Iterator
+      //EDGE_INFO_MAP _edge_info;
+
+      _ordered_edges_list.clear();
+
+      INFO_IT cit=_edge_info.begin();
+      for (; cit != _edge_info.end();cit++) {
+        EDGE e = cit->first;
+        int freq = cit->second.first.size();
+        _ordered_edges_list.push_back(make_pair(e,freq));
+      }
+
+      //sort(_ordered_edges_list.begin(),_ordered_edges_list.end(), [](pair<EDGE,int> a, const pair<EDGE,int> b){return a.second > b.second;});
+      for(int i=0;i<_ordered_edges_list.size();i++)
+      for(int j=i+1;j<_ordered_edges_list.size();j++)
+        if (_ordered_edges_list[i].second < _ordered_edges_list[j].second){
+          pair<EDGE,int> temp = _ordered_edges_list[i];
+          _ordered_edges_list[i] = _ordered_edges_list[j];
+          _ordered_edges_list[j] = temp;
+        }
+
+      _map_edge_to_index.clear();
+      for(int i=0;i<_ordered_edges_list.size();i++){
+        _map_edge_to_index.insert(make_pair(_ordered_edges_list[i].first,i));
+      }
+
+      //test
+      cout<< "ordered edge list: "<<endl;
+       for(int i=0;i<_ordered_edges_list.size();i++){
+          EDGE e = _ordered_edges_list[i].first;
+          int index = _map_edge_to_index.find(e)->second;
+          cout <<i<<") "<< e.first.first <<" "<< e.first.second<<" "<<e.second << ": \t"<<_ordered_edges_list[i].second <<"\t"<<index <<endl;
+          vector<int> * idset = &(_edge_info.find(e)->second.first);
+          cout <<"\t idset: ";
+          for (int j=0;j<idset->size();j++)
+            cout<< idset->at(j)<<", ";
+          cout <<endl;
+      }
+    }
+
+    void print_ordered_edges_list(){
+      for(int i=0;i<_ordered_edges_list.size();i++){
+          EDGE e = _ordered_edges_list[i].first;
+        cout << e.first.first <<" "<< e.first.second<<" "<<e.second << ": \t"<<_ordered_edges_list[i].second<<endl;
+      }
     }
 
   EDGE get_random_edge(PAT_T* graph){
@@ -363,11 +418,14 @@ class Database {
 			*  \param graph_no an Integer.
 		 */
     void vat_and_freq_update(EDGE_FREQ_MAP& local, int graph_no){
-      FREQ_MAP_CIT cit;
+      //map<EDGE, pair<vector<int>, int > > EDGE_INFO_MAP
+      ///TODO: sort the frequency of edges
+      FREQ_MAP_CIT cit; //<edge, frequent>
       for (cit = local.begin(); cit != local.end(); cit++) {
         INFO_IT ret_it = _edge_info.find(cit->first);
-        if (ret_it == _edge_info.end()) {
+        if (ret_it == _edge_info.end()) { //new edge
           vector<int> vat; vat.push_back(graph_no);
+          //edge, <idset vector, frequent>
           _edge_info.insert(ret_it, make_pair(cit->first, make_pair(vat, cit->second)));
         }
         else {  // info about this edge exist
@@ -740,6 +798,9 @@ class Database {
     static vector<int> _no_data;       //!< dummy vector to return reference to null data
     int _minsup; //!< store minimum support
     int _subgraph_size; //!< store size of subgraph
+
+    vector<pair<EDGE,int> > _ordered_edges_list; // Edge, its idset
+    map<EDGE,int> _map_edge_to_index; //map edge to its index in the ordered edge list
 };
 
 #endif

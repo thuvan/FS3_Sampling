@@ -297,17 +297,17 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
-    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
-
-    cout<<"neighbors count: "<<dx<<endl;
-    for(int i=0;i<nbs_vids.size();i++)
-    {
-      cout<<i<<") v"<<vids[i]<<": ";
-      for (int j=0;j<nbs_vids[i]->size();j++)
-        cout<<nbs_vids[i]->operator[](j)<<" ";
-      cout<<endl;
-    }
+//    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+//    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
+//
+//    cout<<"neighbors count: "<<dx<<endl;
+//    for(int i=0;i<nbs_vids.size();i++)
+//    {
+//      cout<<i<<") v"<<vids[i]<<": ";
+//      for (int j=0;j<nbs_vids[i]->size();j++)
+//        cout<<nbs_vids[i]->operator[](j)<<" ";
+//      cout<<endl;
+//    }
 
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);

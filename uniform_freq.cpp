@@ -53,6 +53,22 @@ void parse_args(int argc, char* argv[]) {
   }
 }//end parse_args()
 
+int selectGraphForSampling(Database<PAT>* database){
+  //select a graph uniformly
+  int graph_id = database->get_random_graph_id();
+
+//  //get random graph
+//  if(cur_iter <= top_k)
+//  {
+//      graph_id = database ->get_random_GraphID_by_FirstRow(); // just get randomly 1 graph from the first row.
+//  }
+//  else
+//  {
+//      graph_id = database ->get_random_GraphID(); // get randomly 1 graph from all rows.
+//  }
+  return graph_id;
+}
+
 /*! main function */
 int main(int argc, char *argv[]) {
 
@@ -66,13 +82,14 @@ int main(int argc, char *argv[]) {
     database = new Database<PAT>(datafile);
     database->set_subgraph_size(subgraph_size);
     database->set_minsup(1);
+    database->build_ordered_edges_list();
   }
   catch (exception& e) {
 
     cout << e.what() << endl;
   }
 	database->print_database();
-
+	database->print_ordered_edges_list();
   int cur_iter=0;
   ///TODO:
   //QUEUE* queue;
@@ -87,15 +104,8 @@ int main(int argc, char *argv[]) {
   while (cur_iter<=max_iter){
       cur_iter++;
       int graph_id;
-      if(cur_iter <= top_k)
-      {
-          graph_id = database ->get_random_GraphID_by_FirstRow(); // just get randomly 1 graph from the first row.
-      }
-      else
-      {
-          graph_id = database ->get_random_GraphID(); // get randomly 1 graph from all rows.
-      }
 
+      graph_id = selectGraphForSampling(database);
       cout<< "selected graph: \n"<< graph_id<<endl;
       g = database->get_graph_by_id(graph_id);
       cout << *g;
@@ -144,64 +154,6 @@ int main(int argc, char *argv[]) {
         qItem->score = h_score;
         Q.push(qItem);
       }
-  }
-
-
-  while (cur_iter<=max_iter){
-    cur_iter++;
-    int graph_id;
-
-    cout<<"Begin sampling iter "<<cur_iter<<"\n";
-    //select a graph uniformly
-    graph_id = database->get_random_graph_id();
-    cout<< "selected graph: \n"<< graph_id<<endl;
-    g = database->get_graph_by_id(graph_id);
-    cout << *g;
-
-    RDW_MAPIT it = rdw_map.find(graph_id);
-    RANDOM_WALK* rdw;
-    if (it == rdw_map.end()){
-      //the graph_id is sampled in the first time
-      rdw = new RANDOM_WALK(database,graph_id,subgraph_size);
-      rdw_map.insert(make_pair(graph_id,rdw));
-    }else{
-      rdw = it->second;
-    }
-
-    double h_score ;
-    PAT* h = rdw->sampling_subgraph(h_score); // return a subgraph and it's score
-    if (h!=NULL){
-      cout<<"Sampled subgraph: score = "<<h_score<<endl;
-      cout<<*h;
-    }
-
-    if (Q.isFull() && h_score<Q.getHalfAvgScore())
-      continue;
-
-    Queue_Item* qItem = Q.findByGraph(h);
-    if (qItem!=NULL)
-    {
-      ///TODO: hoi ngu: sao ko thay update h_score?
-      int preSupport = qItem->idset.size();
-      int idx = find_in_vector(qItem->idset,graph_id);
-      if (idx==-1){
-        qItem->idset.push_back(graph_id);
-        qItem->insert_time = cur_iter;
-      }
-    }
-    else
-    {
-      if (Q.isFull())
-        Q.evictLast();
-
-      qItem = new Queue_Item();
-      qItem->subgraph = h;
-      qItem->idset.push_back(graph_id);
-      qItem->insert_time = cur_iter;
-      ///TODO: score cua subgraph o moi graph co the khac nhau => score luu score o graph nao?
-      qItem->score = h_score;
-      Q.push(qItem);
-    }
   }
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
