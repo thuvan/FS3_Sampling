@@ -38,7 +38,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="EdgeGraphTable.h" />
+		<Unit filename="EdgeGraphTable.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Priority_Queue.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="README" />
 		<Unit filename="StringTokenizer.cpp" />
 		<Unit filename="StringTokenizer.h" />

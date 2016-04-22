@@ -179,7 +179,8 @@ class Uniform_SubGraph_Random_Walk
 
     for(int i=0;i<vids.size();i++)
     {
-        // Calculate Rank của từng đỉnh
+        // Calculate Rank của từng đỉnh ??
+        /// rank cua 1 dinh tinh nhu the nao?
 
         // Sort tăng theo rank của đỉnh, gọi tập này là Nodes
     }
@@ -223,6 +224,8 @@ class Uniform_SubGraph_Random_Walk
 
   double compute_score(LATTICE_NODE* lNode)
   {
+    //score cua subgraph bang frequency cua subgraph do
+    //= size cua intersection cua support_set cua cac canh cua subgraph
     double score;
     PAT* pat = lNode->_pat;
     const multiset<EDGE>& mset = pat->get_edgeset();
@@ -230,27 +233,28 @@ class Uniform_SubGraph_Random_Walk
     lNode->_support_set=new vector<int>();
 
     //multiset<int>::iterator it;
-    for (EDGE_IT it=mset.begin(); it!=mset.end(); ++it)
+    for (EDGE_IT it=mset.begin(); it!=mset.end(); ++it) //duyet qua danh sach canh
     {
-      vector<int> spset = _database->get_support_set(*it);
-      if(lNode->_support_set->size()==0)
+      vector<int> spset = _database->get_support_set(*it); //lay ds graph support canh it
+      if(lNode->_support_set->size()==0) //neu support_set cua subgraph = 0
       {
         for(int i=0;i<spset.size();i++)
-          lNode->_support_set->push_back(spset[i]);
+          lNode->_support_set->push_back(spset[i]); //them cac graph support canh it vao ds
       }
-      else
+      else // support set da co du lieu
       {
         //remove
-        for(int i=lNode->_support_set->size()-1;i>=0;i--)
+        for(int i=lNode->_support_set->size()-1;i>=0;i--) //duyet qua danh sach support set cua subgraph
         {
           bool found=false;
+          //kiem tra xem graph i co support cho canh hien tai hay ko
           for(int j=0;j<spset.size();j++)
             if (lNode->_support_set->operator[](i)==spset[j])
             {
               found = true;
               break;
             }
-          if (!found)
+          if (!found) //neu graph thu i trong support_set ko support cho canh it thi remove
             lNode->_support_set->erase (lNode->_support_set->begin()+i);
         }
       }
@@ -297,17 +301,17 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
-    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
-
-    cout<<"neighbors count: "<<dx<<endl;
-    for(int i=0;i<nbs_vids.size();i++)
-    {
-      cout<<i<<") v"<<vids[i]<<": ";
-      for (int j=0;j<nbs_vids[i]->size();j++)
-        cout<<nbs_vids[i]->operator[](j)<<" ";
-      cout<<endl;
-    }
+//    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+//    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
+//
+//    cout<<"neighbors count: "<<dx<<endl;
+//    for(int i=0;i<nbs_vids.size();i++)
+//    {
+//      cout<<i<<") v"<<vids[i]<<": ";
+//      for (int j=0;j<nbs_vids[i]->size();j++)
+//        cout<<nbs_vids[i]->operator[](j)<<" ";
+//      cout<<endl;
+//    }
 
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
