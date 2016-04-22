@@ -38,6 +38,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="EdgeGraphTable.h" />
 		<Unit filename="README" />
 		<Unit filename="StringTokenizer.cpp" />
 		<Unit filename="StringTokenizer.h" />
