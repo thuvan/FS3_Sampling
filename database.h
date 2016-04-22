@@ -164,6 +164,13 @@ class Database {
       }
     }
 
+    int get_vertex_frequency(V_T vlabel){
+      typename map<V_T,int>::iterator vit = _map_vertex_frequency.find(vlabel);
+      assert(vit != _map_vertex_frequency.end());
+      return vit->second;
+    }
+
+
   EDGE get_random_edge(PAT_T* graph){
       //get random one edge of graph
       const multiset<EDGE>& mset = graph->get_edgeset();
@@ -344,6 +351,12 @@ class Database {
           strtok.nextIntToken();
           V_T v_lbl = _vl_prsr.parse_element(strtok.nextToken().c_str());
           vlabels.push_back(v_lbl);
+
+          typename map<V_T,int>::iterator vit = _map_vertex_frequency.find(v_lbl);
+          if (vit == _map_vertex_frequency.end())
+            _map_vertex_frequency.insert(vit,make_pair(v_lbl,1));
+          else
+            vit->second++;
         }
         else if (one_line.at(0) == 'e') {
           if (pat == 0) {
@@ -801,6 +814,7 @@ class Database {
 
     vector<pair<EDGE,int> > _ordered_edges_list; // Edge, its idset
     map<EDGE,int> _map_edge_to_index; //map edge to its index in the ordered edge list
+    map<V_T,int> _map_vertex_frequency; //
 };
 
 #endif
