@@ -87,7 +87,7 @@ class Uniform_SubGraph_Random_Walk
     else {
       delete lNode;
     }
-
+    cout <<"end create_lattice_node\n";
     return node;
   }
 
@@ -148,6 +148,7 @@ class Uniform_SubGraph_Random_Walk
 		* \return a pointer of LATTICE_NODE.
 	*/
   LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
+    cout <<"begin get_random_next2\n";
     // Duyet tat ca cac dinh của _last_node
     vector<pair<int,double> > vrank(current->_vids.size());
     for(int i=0;i<current->_vids.size();i++)
@@ -209,6 +210,7 @@ class Uniform_SubGraph_Random_Walk
     vids.erase(vids.begin()+removeIndex);
     vids.push_back(addVid);
     LATTICE_NODE* lNode = create_lattice_node(vids);
+    cout <<"end get_random_next2\n";
     return lNode;
   }
 
@@ -247,8 +249,9 @@ class Uniform_SubGraph_Random_Walk
     return _last_node->_pat;
   }
 
-  PAT* sampling_subgraph_by_Edge_Graph(double& score)
+  LATTICE_NODE* sampling_subgraph_by_Edge_Graph(double& score)
   {
+    cout <<"begin sampling_subgraph_by_Edge_Graph\n";
     if(!_isInitialized)
       _last_node = initialize();
 
@@ -260,8 +263,10 @@ class Uniform_SubGraph_Random_Walk
     ///TODO: viet vong while o day
     while(next==NULL)
     {
+      cout <<"begin while\n";
       next = get_random_next2(_last_node);
       process_node(next);
+      cout <<"while after process_node\n";
       //tinh score of y
       double score_y = next->_score;
       double nbs_y = next->_neighbors_count;
@@ -276,7 +281,8 @@ class Uniform_SubGraph_Random_Walk
       next = NULL;
     }
     score = _last_node->_score;
-    return _last_node->_pat;
+    cout <<"end sampling_subgraph_by_Edge_Graph\n";
+    return _last_node;
   }
 
   double compute_score(LATTICE_NODE* lNode)
@@ -349,6 +355,7 @@ class Uniform_SubGraph_Random_Walk
   {
     if (n->_is_processed)
       return;
+    cout <<"begin process_node\n";
     //khoi tao mang neighbor_vids
     for(int i=0;i<n->_vids.size();i++)
     {
@@ -358,30 +365,34 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
-//    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-//    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
-//
-//    cout<<"neighbors count: "<<dx<<endl;
-//    for(int i=0;i<nbs_vids.size();i++)
-//    {
-//      cout<<i<<") v"<<vids[i]<<": ";
-//      for (int j=0;j<nbs_vids[i]->size();j++)
-//        cout<<nbs_vids[i]->operator[](j)<<" ";
-//      cout<<endl;
-//    }
+    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
 
+    cout<<"neighbors count: "<<dx<<endl;
+    for(int i=0;i<nbs_vids.size();i++)
+    {
+      cout<<i<<") v"<<vids[i]<<": ";
+      for (int j=0;j<nbs_vids[i]->size();j++)
+        cout<<nbs_vids[i]->operator[](j)<<" ";
+      cout<<endl;
+    }
+    cout<<"make_subgraph_from_vids \n";
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
+    cout<<"after make_subgraph_from_vids \n";
+    cout<< *p <<endl;
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+    cout<<"after check_isomorphism \n";
     p->set_canonical_code(cc);
+    cout<<"after set_canonical_code \n";
     n->_pat = p;
 
     cout << "Current pattern:\n";
     cout << *p;
 
     compute_score(n);
-
     n->_is_processed=true;
+    cout <<"end process_node\n";
   }
 
 //================================= CODE DA BI XOA ====================================

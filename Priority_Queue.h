@@ -8,6 +8,10 @@ typedef ExPattern<int, int> PAT;
 
 class Queue_Item{
 public:
+  void free(){
+    if (subgraph!=NULL)
+      delete(subgraph);
+  }
   void print(){
     cout<<"score= "<<score<<"\t time= "<<insert_time<<endl;
     cout<<"idset = <";
@@ -26,12 +30,12 @@ public:
 
 class Priority_Queue
 {
-  bool compare(const Queue_Item* a, const Queue_Item* b) const
+  bool isLessThan(const Queue_Item* a, const Queue_Item* b) const
     {
-      if (a->idset.size()<b->idset.size())
+      if (a->idset.size() < b->idset.size())
         return true;
-      else if (a->idset.size()==b->idset.size())
-        if (a->score<b->score)
+      else if (a->idset.size() == b->idset.size())
+        if (a->score < b->score)
           return true;
         else if (a->score == b->score )
           ///TODO: check lai cho so sanh nay, ko biet dung hay sai
@@ -52,13 +56,13 @@ class Priority_Queue
         return;
       }
       int i=_data.size()-1;
-      if (compare(item, _data[i])){
+      if (!isLessThan(item, _data[i])){
         _data.push_back(item);
         return;
       }else
         _data.push_back(_data[i]);
 
-      while (i>0 && compare(item,_data[i-1])){
+      while (i>0 && isLessThan(item,_data[i-1])){
         _data[i]=_data[i-1];
         i--;
       }
@@ -66,8 +70,10 @@ class Priority_Queue
     }
     void evictLast()
     {
-      if (_data.size()>0)
+      if (_data.size()>0){
+        _data[0]->free();
         _data.erase(_data.begin());
+      }
     }
 
     void print()
@@ -77,7 +83,6 @@ class Priority_Queue
         cout<<i<<"): "<<endl;
         item->print();
       }
-
     }
 
     int size(){ return _data.size();}
@@ -91,6 +96,11 @@ class Priority_Queue
       for(int i=0;i<half;i++)
         sumScore += _data[i]->score;
       return sumScore/half;
+    }
+
+    double getMinScore()
+    {
+      return _data[0]->score;
     }
 
     Queue_Item* findByGraph(PAT* g)
