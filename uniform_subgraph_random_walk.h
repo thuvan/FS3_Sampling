@@ -134,6 +134,12 @@ class Uniform_SubGraph_Random_Walk
     return lNode;
   }
 
+  struct sort_pred {
+    bool operator()(const std::pair<int,double> &left, const std::pair<int,double> &right) {
+        return left.second < right.second;
+    }
+  };
+
    	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
  		*  \brief A member function to get next node on itemset lattice to jump from current.
 		*	 Acceptance probability calculation of Metropolis-Hastings
@@ -142,44 +148,68 @@ class Uniform_SubGraph_Random_Walk
 		* \return a pointer of LATTICE_NODE.
 	*/
   LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
-    //
     // Duyet tat ca cac dinh của _last_node
-
-    vector<double> vrank(current->_vids.size());
+    vector<pair<int,double> > vrank(current->_vids.size());
     for(int i=0;i<current->_vids.size();i++)
     {
       int vid = current->_vids[i];
-      V_T vlb = current->_pat->label(vid);
-      //rank of v = frequency(v) * #neighbor(v);
+      V_T vlb = _graph->label(vid);
+      ///rank of v = frequency(v) * #neighbor(v);
       int vfreq = _database->get_vertex_frequency(vlb);
-      // Calculate Rank của từng đỉnh ??
-      /// rank cua 1 dinh tinh nhu the nao?
       int nb_count = current->get_neighbors_of_vid(vid)->size();
-      vrank[i] = vfreq*nb_count; ///OPINION: frequency of vertex is very large compare to number of its neighbor
+      vrank[i] = make_pair(vid,vfreq*nb_count); ///OPINION: frequency of vertex is very large compare to number of its neighbor
     }
+    std::sort(vrank.begin(), vrank.end(),sort_pred());
+    ///test
+    cout << "rank of vertexes:"<<endl;
+    for(int i=0;i<vrank.size();i++)
+      cout<<"\t"<<vrank[i].first <<", "<<vrank[i].second<<endl;
+
     //select vertex for remove: select vertex co rank min
-    double minRank = vrank[0];
-    int selectedIndex = 0;
-    for(int i=1;i<vrank.size();i++)
-    if (vrank[i]<minRank){
-      minRank = vrank[i];
-      selectedIndex = i;
+    int removeVid;
+    vector<int>* replacableVids;
+    int removeIndex = 0;
+    while (removeIndex<vrank.size()){
+      removeVid = vrank[removeIndex].first;
+      replacableVids = current->get_neighbors_of_vid(removeVid);
+      if (replacableVids->size() > 0)
+        break;
+      removeIndex++;
     }
-    int removeVid = current->_vids[selectedIndex];
+    cout<< "removed vertex index: "<<removeIndex<<", vid: "<<removeVid<<endl;
+    cout<< "replaceable vids: ";
+    for(int i=0;i<replacableVids->size();i++)
+      cout <<replacableVids->at(i)<<", ";
+    cout<<endl;
 
-    vector<int>* replacableVids = current->get_neighbors_of_vid(removeVid);
-    ///select a neighbor of the selected vertex for replace: select vertex that have highest rank
-
-
-    // While( node t in nodes)
-
-        // Tìm các đỉnh mà nó có thể thay thế gọi là NodeAddSet
-
-            // tạo ra subgraph y mới bằng cách bỏ node đó và thay bằng node có rank lớn nhất trong B
-
-            // Break;
-
-    //  Tính Frequency of subgraph y bằng cách
+    ///select vertex that has max rank
+    double maxScore=-1;
+    int maxIndex = -1;
+    int addVid;
+    for(int i=0;i<replacableVids->size();i++){
+      int vid = replacableVids->at(i);
+      V_T vlb = _graph->label(vid);
+      ///rank of v = frequency(v) * #neighbor(v);
+      int vfreq = _database->get_vertex_frequency(vlb);
+      vector<int> nbs;
+      _graph->get_adj_matrix()->neighbors(vid,nbs);
+      double score = vfreq*nbs.size();
+      if (score>maxScore){
+        maxScore = score;
+        maxIndex = i;
+        addVid = vid;
+      }
+    }
+    cout<<" add vertex index: "<<maxIndex<<", vid: "<<addVid<<", score: "<<maxScore<<endl;
+    ///tao next node
+    vector<int> vids;
+    for(int i=0; i<current->_vids.size();i++){
+      vids.push_back(current->_vids[i]);
+    }
+    vids.erase(vids.begin()+removeIndex);
+    vids.push_back(addVid);
+    LATTICE_NODE* lNode = create_lattice_node(vids);
+    return lNode;
   }
 
 
@@ -230,7 +260,7 @@ class Uniform_SubGraph_Random_Walk
     ///TODO: viet vong while o day
     while(next==NULL)
     {
-      next = get_random_next(_last_node);
+      next = get_random_next2(_last_node);
       process_node(next);
       //tinh score of y
       double score_y = next->_score;

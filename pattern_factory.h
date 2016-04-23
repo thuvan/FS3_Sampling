@@ -462,26 +462,26 @@ class PatternFactory {
      // cout << "Returning from get_super_degree" << endl;
       return ret_val;
     }
-
-    void get_neighbors_subgraph(const PAT* pat,vector<int>& vids, vector<PAT*>& super_patterns) {
-#ifdef PRINT
-      cout<<"In call to get_all_frequent_super_pattern\n";
-#endif
-
-      PAT* edge=0;
-      PAT* cand_pat=0;
-
-      EDGE this_edge;
-      typedef map<EDGE, int> EDGE_FREQ;
-      typedef typename EDGE_FREQ::const_iterator F_CIT;
-      typedef map<std::string, int > ALL_PAT;
-      typedef typename ALL_PAT::iterator APIT;
-      int subgraph_size = _d->get_subgraph_size();
-
-      ///TODO: not implemented
-
-
-    }
+//
+//    void get_neighbors_subgraph(const PAT* pat,vector<int>& vids, vector<PAT*>& super_patterns) {
+//#ifdef PRINT
+//      cout<<"In call to get_all_frequent_super_pattern\n";
+//#endif
+//
+//      PAT* edge=0;
+//      PAT* cand_pat=0;
+//
+//      EDGE this_edge;
+//      typedef map<EDGE, int> EDGE_FREQ;
+//      typedef typename EDGE_FREQ::const_iterator F_CIT;
+//      typedef map<std::string, int > ALL_PAT;
+//      typedef typename ALL_PAT::iterator APIT;
+//      int subgraph_size = _d->get_subgraph_size();
+//
+//      ///TODO: not implemented
+//
+//
+//    }
 
 			/*! \fn void get_freq_super_patterns(const PAT* pat, vector<PAT*>& super_patterns)
  		*  \brief A member function to generate super pattern of a pattern.
