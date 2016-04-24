@@ -236,6 +236,41 @@ bool SqrSymMatrix::dfs_visit(int src, BITVECTOR& visited, int dst) const {
   return false;
 }
 
+/*! \fn bool SqrSymMatrix::dfs_visit(int src_index, const vector<int>& vids,BITVECTOR& visited, int& visited_count) const
+ 		*  \brief A member function to make a dfs visit all vertex in vids starting from scr.
+		*	\param int src_index: index of src vertex in vids
+		*	\param vids: vector of vertex
+    *	\param visited a reference of BITVECTOR.
+    *	\param visited_count: number of vertex visited
+		* \return a boolean: true if all vertex in vids are visited, false otherwise.
+	*/
+bool SqrSymMatrix::dfs_visit(int src_index, const vector<int>& vids,BITVECTOR& visited, int& visited_count) const {
+  visited[src_index] = true;
+  visited_count++;
+  if (visited_count==vids.size())
+    return true; //visited all vertexes in vids
+
+  int src = vids[src_index];
+  for (size_t pos = _data[src].find_first(); pos != BITVECTOR::npos;
+       pos = _data[src].find_next(pos)) {
+    vector<int>::const_iterator it = find(vids.begin(),vids.end(),pos);
+    if (it==vids.end())
+      continue; //not in vids list
+    int next_index = it - vids.begin();
+    if (visited[next_index] == true) continue;
+    bool ret = dfs_visit(next_index,vids, visited,visited_count);
+    if (ret==true)
+      return true;
+  }
+  return false;
+}
+
+bool SqrSymMatrix::check_connected(const vector<int>& vids) const{
+  BITVECTOR visited(vids.size());
+  int visited_count = 0;
+  return dfs_visit(0,vids,visited,visited_count);
+}
+
 //! Constructor
 AdjIterator::AdjIterator(const SqrSymMatrix* m) {
   _m = m;

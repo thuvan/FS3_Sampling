@@ -149,8 +149,8 @@ class Uniform_SubGraph_Random_Walk
 	*/
   LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
     cout <<"begin get_random_next2\n";
-    // Duyet tat ca cac dinh của _last_node
-    vector<pair<int,double> > vrank(current->_vids.size());
+    ///rank vertex of subgraph
+    vector<pair<int,double> > vrank(current->_vids.size()); // <index in _vids, rank>
     for(int i=0;i<current->_vids.size();i++)
     {
       int vid = current->_vids[i];
@@ -158,30 +158,34 @@ class Uniform_SubGraph_Random_Walk
       ///rank of v = frequency(v) * #neighbor(v);
       int vfreq = _database->get_vertex_frequency(vlb);
       int nb_count = current->get_neighbors_of_vid(vid)->size();
-      vrank[i] = make_pair(vid,vfreq*nb_count); ///OPINION: frequency of vertex is very large compare to number of its neighbor
+      vrank[i] = make_pair(i,vfreq*nb_count); ///OPINION: frequency of vertex is very large compare to number of its neighbor
     }
     std::sort(vrank.begin(), vrank.end(),sort_pred());
     ///test
     cout << "rank of vertexes:"<<endl;
     for(int i=0;i<vrank.size();i++)
-      cout<<"\t"<<vrank[i].first <<", "<<vrank[i].second<<endl;
+      cout<<"\t"<<current->_vids[vrank[i].first] <<", "<<vrank[i].second<<endl;
 
-    //select vertex for remove: select vertex co rank min
+    ///select vertex for remove: select vertex co rank min
     int removeVid;
     vector<int>* replacableVids;
-    int removeIndex = 0;
-    while (removeIndex<vrank.size()){
-      removeVid = vrank[removeIndex].first;
+    int i = 0;
+    int removeIndex=-1;
+    while (i<vrank.size()){
+      removeVid = current->_vids[vrank[i].first];
       replacableVids = current->get_neighbors_of_vid(removeVid);
-      if (replacableVids->size() > 0)
+      if (replacableVids->size() > 0){
+        removeIndex = vrank[i].first;
         break;
-      removeIndex++;
+      }
+      i++;
     }
     cout<< "removed vertex index: "<<removeIndex<<", vid: "<<removeVid<<endl;
     cout<< "replaceable vids: ";
-    for(int i=0;i<replacableVids->size();i++)
-      cout <<replacableVids->at(i)<<", ";
-    cout<<endl;
+    print_vector(*replacableVids);
+//    for(int i=0;i<replacableVids->size();i++)
+//      cout <<replacableVids->at(i)<<", ";
+//    cout<<endl;
 
     ///select vertex that has max rank
     double maxScore=-1;
@@ -203,12 +207,11 @@ class Uniform_SubGraph_Random_Walk
     }
     cout<<" add vertex index: "<<maxIndex<<", vid: "<<addVid<<", score: "<<maxScore<<endl;
     ///tao next node
-    vector<int> vids;
-    for(int i=0; i<current->_vids.size();i++){
-      vids.push_back(current->_vids[i]);
-    }
-    vids.erase(vids.begin()+removeIndex);
-    vids.push_back(addVid);
+    vector<int> vids(current->_vids);
+    vids[removeIndex]=addVid;
+    cout<< "vids of next subgraph: ";
+    print_vector(vids);
+
     LATTICE_NODE* lNode = create_lattice_node(vids);
     cout <<"end get_random_next2\n";
     return lNode;

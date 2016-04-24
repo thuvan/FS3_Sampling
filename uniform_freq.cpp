@@ -157,6 +157,7 @@ int main(int argc, char *argv[]) {
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
   Q.print();
+  Q.free();
   ///TODO: delete random_walks, delete Queue
   delete database;
   cout << "FINISHED, PRESS ENTER TO EXIST!"<<endl;

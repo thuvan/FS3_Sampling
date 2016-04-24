@@ -49,6 +49,14 @@ class Priority_Queue
     {
       _max_size = max_size;
     }
+
+    void free(){
+      for(int i=0;i<_data.size();i++){
+        _data[i]->free();
+        delete(_data[i]);
+      }
+    }
+
     void push(Queue_Item* item)
     {
       if(_data.size()==0){

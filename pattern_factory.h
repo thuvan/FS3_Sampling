@@ -133,13 +133,7 @@ class PatternFactory {
           continue;
         graph->get_adj_matrix()->neighbors(vids[h],nb);
       }
-      // remove duplicate
-      for(int j=0; j< nb.size();j++){
-        for(int k = j+1;k<nb.size();k++)
-          if (nb[k]==nb[j])
-            nb.erase(nb.begin()+k);
-      }
-      //Check if neighbor vertex is not in subgraph => add to neighbor vector
+
       for(int j=0;j<nb.size();j++)
       {
         //check node j is already in subgraph
@@ -153,12 +147,18 @@ class PatternFactory {
         if (isInSubgraph)
           continue;
 
-        //check if node j is already added
-//        std::vector<int>::iterator it;
-//        it = find (nbs_vids[i]->begin(), nbs_vids[i]->end(), nb[j]);
-//        if(it != nbs_vids[i]->end()) // check id is existed at nbs_vids[i] or not?
-//          continue; // nb[j] is already added
+        ///check if node j is already added
+        std::vector<int>::iterator it;
+        it = find (nbs_vids[i]->begin(), nbs_vids[i]->end(), nb[j]);
+        if(it != nbs_vids[i]->end()) // check id is existed at nbs_vids[i] or not?
+          continue; // nb[j] is already added
         ///check lien thong
+        vector<int> vids_new(vids);
+        vids_new[i] = nb[j]; //replace vertex i by new vertex nb[j]
+        bool is_connected = graph->get_adj_matrix()->check_connected(vids_new);
+        if (!is_connected)
+          continue;
+
         nbs_vids[i]->push_back(nb[j]);
         c++;
       }
