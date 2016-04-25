@@ -87,7 +87,7 @@ class Uniform_SubGraph_Random_Walk
     else {
       delete lNode;
     }
-
+    cout <<"end create_lattice_node\n";
     return node;
   }
 
@@ -134,67 +134,94 @@ class Uniform_SubGraph_Random_Walk
     return lNode;
   }
 
-  PAT* sampling_subgraph(double& score)
-  {
-    if(!_isInitialized)
-      _last_node = initialize();
+  struct sort_pred {
+    bool operator()(const std::pair<int,double> &left, const std::pair<int,double> &right) {
+        return left.second < right.second;
+    }
+  };
 
-    process_node(_last_node);
-
-    double score_x = _last_node->_score;
-    double nbs_x = _last_node->_neighbors_count;
-
-    LATTICE_NODE* next=NULL;
-    ///TODO: viet vong while o day
-    while(next==NULL)
+   	/*! \fn LATTICE_NODE* get_next(LATTICE_NODE* current) const
+ 		*  \brief A member function to get next node on itemset lattice to jump from current.
+		*	 Acceptance probability calculation of Metropolis-Hastings
+		* algorithm is implemented here.
+		*	\param current a pointer of LATTICE_NODE.
+		* \return a pointer of LATTICE_NODE.
+	*/
+  LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
+    cout <<"begin get_random_next2\n";
+    ///rank vertex of subgraph
+    vector<pair<int,double> > vrank(current->_vids.size()); // <index in _vids, rank>
+    for(int i=0;i<current->_vids.size();i++)
     {
-      next = get_random_next(_last_node);
-      process_node(next);
-      //tinh score of y
-      double score_y = next->_score;
-      double nbs_y = next->_neighbors_count;
-      double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
-      double accp_probablility = accp_value<=1?accp_value:1;
-      double rd = random_uni01();
-      //check probability
-      if (rd <= accp_probablility){
-        _last_node = next;
+      int vid = current->_vids[i];
+      V_T vlb = _graph->label(vid);
+      ///rank of v = frequency(v) * #neighbor(v);
+      int vfreq = _database->get_vertex_frequency(vlb);
+      int nb_count = current->get_neighbors_of_vid(vid)->size();
+      vrank[i] = make_pair(i,vfreq*nb_count); ///OPINION: frequency of vertex is very large compare to number of its neighbor
+    }
+    std::sort(vrank.begin(), vrank.end(),sort_pred());
+    ///test
+//    cout << "rank of vertexes:"<<endl;
+//    for(int i=0;i<vrank.size();i++)
+//      cout<<"\t"<<current->_vids[vrank[i].first] <<", "<<vrank[i].second<<endl;
+
+    ///select vertex for remove: select vertex co rank min
+    int removeVid;
+    vector<int>* replacableVids;
+    int i = 0;
+    int removeIndex=-1;
+    while (i<vrank.size()){
+      removeVid = current->_vids[vrank[i].first];
+      replacableVids = current->get_neighbors_of_vid(removeVid);
+      if (replacableVids->size() > 0){
+        removeIndex = vrank[i].first;
         break;
       }
-      next = NULL;
+      i++;
     }
-    score = _last_node->_score;
-    return _last_node->_pat;
+    cout<< "removed vertex index: "<<removeIndex<<", vid: "<<removeVid<<endl;
+    cout<< "replaceable vids: ";
+    print_vector(*replacableVids);
+
+    ///select vertex that has max rank
+    double maxScore=-1;
+    int maxIndex = -1;
+    int addVid;
+    for(int i=0;i<replacableVids->size();i++){
+      int vid = replacableVids->at(i);
+      V_T vlb = _graph->label(vid);
+      ///rank of v = frequency(v) * #neighbor(v);
+      int vfreq = _database->get_vertex_frequency(vlb);
+      vector<int> nbs;
+      _graph->get_adj_matrix()->neighbors(vid,nbs);
+      double score = vfreq*nbs.size();
+      if (score>maxScore){
+        maxScore = score;
+        maxIndex = i;
+        addVid = vid;
+      }
+    }
+    cout<<" add vertex index: "<<maxIndex<<", vid: "<<addVid<<", score: "<<maxScore<<endl;
+    ///tao next node
+    vector<int> vids(current->_vids);
+    vids[removeIndex]=addVid;
+    cout<< "vids of next subgraph: ";
+    print_vector(vids);
+
+    LATTICE_NODE* lNode = create_lattice_node(vids);
+    cout <<"end get_random_next2\n";
+    return lNode;
   }
 
-  PAT* sampling_subgraph_by_Edge_Graph(double& score)
+
+
+  LATTICE_NODE* sampling_subgraph(double& score)
   {
     if(!_isInitialized)
       _last_node = initialize();
 
     process_node(_last_node);
-    //
-    // Duyet tat ca cac dinh của _last_node
-    vector<int> vids = _last_node->_vids;
-
-    for(int i=0;i<vids.size();i++)
-    {
-        // Calculate Rank của từng đỉnh ??
-        /// rank cua 1 dinh tinh nhu the nao?
-
-        // Sort tăng theo rank của đỉnh, gọi tập này là Nodes
-    }
-
-
-    // While( node t in nodes)
-
-        // Tìm các đỉnh mà nó có thể thay thế gọi là NodeAddSet
-
-            // tạo ra subgraph y mới bằng cách bỏ node đó và thay bằng node có rank lớn nhất trong B
-
-            // Break;
-
-    //  Tính Frequency of subgraph y bằng cách
 
     double score_x = _last_node->_score;
     double nbs_x = _last_node->_neighbors_count;
@@ -219,7 +246,43 @@ class Uniform_SubGraph_Random_Walk
       next = NULL;
     }
     score = _last_node->_score;
-    return _last_node->_pat;
+    return _last_node;
+  }
+
+  LATTICE_NODE* sampling_subgraph_by_Edge_Graph(double& score)
+  {
+    cout <<"begin sampling_subgraph_by_Edge_Graph\n";
+    if(!_isInitialized)
+      _last_node = initialize();
+
+    process_node(_last_node);
+    double score_x = _last_node->_score;
+    double nbs_x = _last_node->_neighbors_count;
+
+    LATTICE_NODE* next=NULL;
+    ///TODO: viet vong while o day
+    while(next==NULL)
+    {
+      cout <<"begin while\n";
+      next = get_random_next2(_last_node);
+      process_node(next);
+      cout <<"while after process_node\n";
+      //tinh score of y
+      double score_y = next->_score;
+      double nbs_y = next->_neighbors_count;
+      double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
+      double accp_probablility = accp_value<=1?accp_value:1;
+      double rd = random_uni01();
+      //check probability
+      if (rd <= accp_probablility){
+        _last_node = next;
+        break;
+      }
+      next = NULL;
+    }
+    score = _last_node->_score;
+    cout <<"end sampling_subgraph_by_Edge_Graph\n";
+    return _last_node;
   }
 
   double compute_score(LATTICE_NODE* lNode)
@@ -292,6 +355,7 @@ class Uniform_SubGraph_Random_Walk
   {
     if (n->_is_processed)
       return;
+    cout <<"begin process_node\n";
     //khoi tao mang neighbor_vids
     for(int i=0;i<n->_vids.size();i++)
     {
@@ -301,30 +365,34 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
-//    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-//    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
-//
-//    cout<<"neighbors count: "<<dx<<endl;
-//    for(int i=0;i<nbs_vids.size();i++)
-//    {
-//      cout<<i<<") v"<<vids[i]<<": ";
-//      for (int j=0;j<nbs_vids[i]->size();j++)
-//        cout<<nbs_vids[i]->operator[](j)<<" ";
-//      cout<<endl;
-//    }
+    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
 
+    cout<<"neighbors count: "<<dx<<endl;
+    for(int i=0;i<nbs_vids.size();i++)
+    {
+      cout<<i<<") v"<<vids[i]<<": ";
+      for (int j=0;j<nbs_vids[i]->size();j++)
+        cout<<nbs_vids[i]->operator[](j)<<" ";
+      cout<<endl;
+    }
+    cout<<"make_subgraph_from_vids \n";
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
+    cout<<"after make_subgraph_from_vids \n";
+    cout<< *p <<endl;
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
+    cout<<"after check_isomorphism \n";
     p->set_canonical_code(cc);
+    cout<<"after set_canonical_code \n";
     n->_pat = p;
 
     cout << "Current pattern:\n";
     cout << *p;
 
     compute_score(n);
-
     n->_is_processed=true;
+    cout <<"end process_node\n";
   }
 
 //================================= CODE DA BI XOA ====================================

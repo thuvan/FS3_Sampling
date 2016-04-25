@@ -306,6 +306,32 @@ class Database {
       cout << "level one frequent:" << _edge_info.size() << endl;
     }
 
+    std::istream& safeGetline(std::istream& is, std::string& t)
+    {
+      t.clear();
+      std::istream::sentry se(is, true);
+      std::streambuf* sb = is.rdbuf();
+
+      for(;;) {
+          int c = sb->sbumpc();
+          switch (c) {
+          case '\n':
+              return is;
+          case '\r':
+              if(sb->sgetc() == '\n')
+                  sb->sbumpc();
+              return is;
+          case EOF:
+              // Also handle the case when the last line has no line ending
+              if(t.empty())
+                  is.setstate(std::ios::eofbit);
+              return is;
+          default:
+              t += (char)c;
+          }
+      }
+    }
+
 		/*! \fn int read_next(ifstream& infile, int& pos, int& graph_no, EDGE_FREQ_MAP& local_map)
 		 *  \brief A member function for reading input file.
 		 *  \param infile an ifstream type reference.
@@ -323,8 +349,10 @@ class Database {
       infile.seekg(pos);
       int id = -1;
       while (1) {
+        cout<<"pos0 = " <<pos<<endl;
         pos = infile.tellg();
-        std::getline(infile, one_line);
+        cout<<"pos1 = " <<pos<<endl;
+        safeGetline(infile, one_line);
         cout << one_line << endl;
         if (one_line.length()<1) {
           _graph_store.push_back(pat);

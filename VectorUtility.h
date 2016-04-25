@@ -13,5 +13,13 @@ int find_in_vector(const vector<int>& v, const int& value)
   return -1;
 }
 
+void print_vector(const vector<int>& v){
+  for(int i=0;i<v.size();i++){
+    if (i!=0)
+      cout <<", ";
+    cout<<v[i];
+  }
+  cout<<endl;
+}
 
 #endif

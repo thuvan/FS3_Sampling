@@ -126,14 +126,14 @@ class PatternFactory {
     int c=0;
     for(int i=0;i<vids.size();i++) // chạy từng đỉnh một
     {
-      vector<int> nb;
+      vector<int> nb; //danh sach vertex ke cua tat ca cac vertex trong vids tru i
       for(int h=0;h<vids.size();h++)
       {
         if (h==i) // nếu là đỉnh đang duyệt thì bỏ qua. có nghĩa là chỉ duyệt neighbor của các đỉnh còn lại
           continue;
         graph->get_adj_matrix()->neighbors(vids[h],nb);
       }
-      //Check if neighbor vertex is not in subgraph => add to neighbor vector
+
       for(int j=0;j<nb.size();j++)
       {
         //check node j is already in subgraph
@@ -144,17 +144,23 @@ class PatternFactory {
             isInSubgraph =true;
             break;
           }
-
         if (isInSubgraph)
           continue;
 
-        //check if node j is already added
+        ///check if node j is already added
         std::vector<int>::iterator it;
         it = find (nbs_vids[i]->begin(), nbs_vids[i]->end(), nb[j]);
-        if(it == nbs_vids[i]->end()){ // check id is existed at nbs_vids[i] or not?
-          nbs_vids[i]->push_back(nb[j]);
-          c++;
-        }
+        if(it != nbs_vids[i]->end()) // check id is existed at nbs_vids[i] or not?
+          continue; // nb[j] is already added
+        ///check lien thong
+        vector<int> vids_new(vids);
+        vids_new[i] = nb[j]; //replace vertex i by new vertex nb[j]
+        bool is_connected = graph->get_adj_matrix()->check_connected(vids_new);
+        if (!is_connected)
+          continue;
+
+        nbs_vids[i]->push_back(nb[j]);
+        c++;
       }
     }
     return c;
@@ -462,26 +468,26 @@ class PatternFactory {
      // cout << "Returning from get_super_degree" << endl;
       return ret_val;
     }
-
-    void get_neighbors_subgraph(const PAT* pat,vector<int>& vids, vector<PAT*>& super_patterns) {
-#ifdef PRINT
-      cout<<"In call to get_all_frequent_super_pattern\n";
-#endif
-
-      PAT* edge=0;
-      PAT* cand_pat=0;
-
-      EDGE this_edge;
-      typedef map<EDGE, int> EDGE_FREQ;
-      typedef typename EDGE_FREQ::const_iterator F_CIT;
-      typedef map<std::string, int > ALL_PAT;
-      typedef typename ALL_PAT::iterator APIT;
-      int subgraph_size = _d->get_subgraph_size();
-
-      ///TODO: not implemented
-
-
-    }
+//
+//    void get_neighbors_subgraph(const PAT* pat,vector<int>& vids, vector<PAT*>& super_patterns) {
+//#ifdef PRINT
+//      cout<<"In call to get_all_frequent_super_pattern\n";
+//#endif
+//
+//      PAT* edge=0;
+//      PAT* cand_pat=0;
+//
+//      EDGE this_edge;
+//      typedef map<EDGE, int> EDGE_FREQ;
+//      typedef typename EDGE_FREQ::const_iterator F_CIT;
+//      typedef map<std::string, int > ALL_PAT;
+//      typedef typename ALL_PAT::iterator APIT;
+//      int subgraph_size = _d->get_subgraph_size();
+//
+//      ///TODO: not implemented
+//
+//
+//    }
 
 			/*! \fn void get_freq_super_patterns(const PAT* pat, vector<PAT*>& super_patterns)
  		*  \brief A member function to generate super pattern of a pattern.

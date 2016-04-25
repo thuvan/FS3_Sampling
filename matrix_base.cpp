@@ -1,4 +1,4 @@
-//! \file matrix_base.cpp 
+//! \file matrix_base.cpp
 #include "matrix_base.h"
 
 using namespace std;
@@ -7,7 +7,7 @@ using namespace std;
 //! default constructor
 Matrix::Matrix() {
   _row = _col = 0;
-} 
+}
 
 //! constructor that allocates memory, and initialize all cell of the matrix as 0
 Matrix::Matrix(size_t r, size_t c) {
@@ -27,18 +27,18 @@ const boost::dynamic_bitset<>& Matrix::operator[](size_t i) const {
 }
 
 
-/*! \fn void Matrix::allocate(size_t r, size_t c) 
- 		*  \brief allocate memory for a matrix of size r X c initialize all entry with 0. 
+/*! \fn void Matrix::allocate(size_t r, size_t c)
+ 		*  \brief allocate memory for a matrix of size r X c initialize all entry with 0.
 		*	\param r,c  a size_t.
-		
+
 	*/
 void Matrix::allocate(size_t r, size_t c) {
   Matrix(r, c);
 }
 
-//! 
-/*! \fn bool Matrix::at(const unsigned int& r, const unsigned int& c) const 
- 		*  \brief Return an element of the matrix [r][c]. 
+//!
+/*! \fn bool Matrix::at(const unsigned int& r, const unsigned int& c) const
+ 		*  \brief Return an element of the matrix [r][c].
 		*	\param r,c a constant reference of unsigned integer.
 		* \return boolean.
 	*/
@@ -47,17 +47,17 @@ bool Matrix::at(const unsigned int& r, const unsigned int& c) const {
   return _data[r][c];
 }
 
-/*! \fn void Matrix::reset(const unsigned int& r) 
- 		*  \brief A member function to reset the matrix. 
+/*! \fn void Matrix::reset(const unsigned int& r)
+ 		*  \brief A member function to reset the matrix.
 		*	\param r a constant reference of unsigned integer.
 	*/
 void Matrix::reset(const unsigned int& r) {
   _data[r].reset();
 }
-   
-// 
-/*! \fn void Matrix::set(const unsigned int& r, const unsigned int& c, bool val) 
- 		*  \brief set the value of the element [r][c]. 
+
+//
+/*! \fn void Matrix::set(const unsigned int& r, const unsigned int& c, bool val)
+ 		*  \brief set the value of the element [r][c].
 		*	\param r,c a constant reference of unsigned integer.
 		* \param val a boolean.
 		*/
@@ -65,8 +65,8 @@ void Matrix::set(const unsigned int& r, const unsigned int& c, bool val) {
   _data[r].set(c,val);
 }
 
-/*! \fn size_t Matrix::rowset_cnt(unsigned int i) 
- 		*  \brief A member function to count non zero element in a row. 
+/*! \fn size_t Matrix::rowset_cnt(unsigned int i)
+ 		*  \brief A member function to count non zero element in a row.
 		*	\param i an unsigned integer.
 		* \return size_t.
 	*/
@@ -74,8 +74,8 @@ size_t Matrix::rowset_cnt(unsigned int i){
   return _data[i].count();
 }
 
-/*! \fn bool Matrix::rowset_empty(unsigned int i) const 
- 		*  \brief A member function to check empty row of a matrix. 
+/*! \fn bool Matrix::rowset_empty(unsigned int i) const
+ 		*  \brief A member function to check empty row of a matrix.
 		*	\param i an unsigned integer.
 		* \return boolean.
 	*/
@@ -84,8 +84,8 @@ bool Matrix::rowset_empty(unsigned int i) const {
   return false;
 }
 
-/*! \fn void Matrix::neighbors(const unsigned int& i, vector<unsigned int>& ret_val) const 
- 		*  \brief A member function to find neighbors. 
+/*! \fn void Matrix::neighbors(const unsigned int& i, vector<unsigned int>& ret_val) const
+ 		*  \brief A member function to find neighbors.
 		*	\param i a constant reference of unsigned integer.
 		* \param ret_val a reference of unsigned integer vector.
 	*/
@@ -98,30 +98,30 @@ void Matrix::neighbors(const unsigned int& i, vector<unsigned int>& ret_val) con
     ret_val.push_back(pos);
 }
 
-/*! \fn Matrix operator*(const Matrix& A, const Matrix& B) 
- 		*  \brief A member function to overload * operator for matrix multiplication. 
+/*! \fn Matrix operator*(const Matrix& A, const Matrix& B)
+ 		*  \brief A member function to overload * operator for matrix multiplication.
 		*	\param A,B a constant reference of Matrix.
 		* \return Matrix
 	*/
-Matrix operator*(const Matrix& A, const Matrix& B) { 
+Matrix operator*(const Matrix& A, const Matrix& B) {
   assert(A.col() == B.row());
   unsigned int r = A.row();
   unsigned int c = B.col();
 
   Matrix C(A.row(), B.col());
-  for (int i = 0; i < r; i++) 
-    for (int j = 0; j < c; j++) 
+  for (int i = 0; i < r; i++)
+    for (int j = 0; j < c; j++)
       for (int k= 0; k < A.col(); k++)
         C._data[i][j] = C._data[i][j] + A.at(i,k) * B.at(k,j);
-  return C; 
-} 
+  return C;
+}
 
-/*! \fn Matrix Transpose(const Matrix& A) 
- 		*  \brief A member function to get transpose of a Matrix. 
+/*! \fn Matrix Transpose(const Matrix& A)
+ 		*  \brief A member function to get transpose of a Matrix.
 		*	\param A a constant reference of Matrix.
 		* \return Matrix.
 	*/
-Matrix Transpose(const Matrix& A) { 
+Matrix Transpose(const Matrix& A) {
   Matrix B(A.col(), A.row());
   for (int i = 0; i < B.row(); i++)
     for (int j = 0; j < B.col(); j++)
@@ -129,8 +129,8 @@ Matrix Transpose(const Matrix& A) {
   return B;
 }
 
-/*! \fn ostream& operator<< (ostream& ostr, const Matrix& M) 
- 		*  \brief A member function to overload << operator for matrix print. 
+/*! \fn ostream& operator<< (ostream& ostr, const Matrix& M)
+ 		*  \brief A member function to overload << operator for matrix print.
 	*/
 ostream& operator<< (ostream& ostr, const Matrix& M){
 
@@ -147,7 +147,7 @@ ostream& operator<< (ostream& ostr, const Matrix& M){
 
 SqrSymMatrix::SqrSymMatrix() : Matrix() { }
 
-SqrSymMatrix::SqrSymMatrix(size_t n) : Matrix(n,n) { 
+SqrSymMatrix::SqrSymMatrix(size_t n) : Matrix(n,n) {
   _size = n;
 }
 
@@ -165,9 +165,9 @@ void SqrSymMatrix::neighbors(const unsigned int& i, vector<unsigned int>& ret_va
     ret_val.push_back(pos);
 }
 
-/*! \fn int SqrSymMatrix::add_vertex() 
- 		*  \brief A member function to increase row size because of new vertex addition. 
-		
+/*! \fn int SqrSymMatrix::add_vertex()
+ 		*  \brief A member function to increase row size because of new vertex addition.
+
 		* \return an integer.
 	*/
 int SqrSymMatrix::add_vertex() {
@@ -180,8 +180,8 @@ int SqrSymMatrix::add_vertex() {
   return _size-1; // returning vertex-id
 }
 
-/*! \fn void SqrSymMatrix::change_adj_matrix(int size, const vector<pair<int, int> >& adj_list) 
- 		*  \brief A member function to update adjacency list of a graph patten when it is extended or reduced in size. 
+/*! \fn void SqrSymMatrix::change_adj_matrix(int size, const vector<pair<int, int> >& adj_list)
+ 		*  \brief A member function to update adjacency list of a graph patten when it is extended or reduced in size.
 		*	\param size an integer.
 		*	\param adj_list a constant reference to pair<int,int> vector.
 	*/
@@ -197,8 +197,8 @@ void SqrSymMatrix::change_adj_matrix(int size, const vector<pair<int, int> >& ad
   _size = size;
 }
 
-/*! \fn bool SqrSymMatrix::essential_edge(int src, int dst) const 
- 		*  \brief A member function to check exixtance of a path from scr to dst vetex of a graph pattern. 
+/*! \fn bool SqrSymMatrix::essential_edge(int src, int dst) const
+ 		*  \brief A member function to check exixtance of a path from scr to dst vetex of a graph pattern.
 		*	\param src,dst an integer.
 		* \return boolean.
 	*/
@@ -217,9 +217,9 @@ bool SqrSymMatrix::essential_edge(int src, int dst) const {
   assert(visited[dst] == false);
   return true;
 }
- 
-/*! \fn bool SqrSymMatrix::dfs_visit(int src, BITVECTOR& visited, int dst) const 
- 		*  \brief A member function to make a dfs visit starting from scr. 
+
+/*! \fn bool SqrSymMatrix::dfs_visit(int src, BITVECTOR& visited, int dst) const
+ 		*  \brief A member function to make a dfs visit starting from scr.
 		*	\param src,dst an integer.
 	*	\param visited a reference of BITVECTOR.
 		* \return a boolean.
@@ -236,6 +236,41 @@ bool SqrSymMatrix::dfs_visit(int src, BITVECTOR& visited, int dst) const {
   return false;
 }
 
+/*! \fn bool SqrSymMatrix::dfs_visit(int src_index, const vector<int>& vids,BITVECTOR& visited, int& visited_count) const
+ 		*  \brief A member function to make a dfs visit all vertex in vids starting from scr.
+		*	\param int src_index: index of src vertex in vids
+		*	\param vids: vector of vertex
+    *	\param visited a reference of BITVECTOR.
+    *	\param visited_count: number of vertex visited
+		* \return a boolean: true if all vertex in vids are visited, false otherwise.
+	*/
+bool SqrSymMatrix::dfs_visit(int src_index, const vector<int>& vids,BITVECTOR& visited, int& visited_count) const {
+  visited[src_index] = true;
+  visited_count++;
+  if (visited_count==vids.size())
+    return true; //visited all vertexes in vids
+
+  int src = vids[src_index];
+  for (size_t pos = _data[src].find_first(); pos != BITVECTOR::npos;
+       pos = _data[src].find_next(pos)) {
+    vector<int>::const_iterator it = find(vids.begin(),vids.end(),pos);
+    if (it==vids.end())
+      continue; //not in vids list
+    int next_index = it - vids.begin();
+    if (visited[next_index] == true) continue;
+    bool ret = dfs_visit(next_index,vids, visited,visited_count);
+    if (ret==true)
+      return true;
+  }
+  return false;
+}
+
+bool SqrSymMatrix::check_connected(const vector<int>& vids) const{
+  BITVECTOR visited(vids.size());
+  int visited_count = 0;
+  return dfs_visit(0,vids,visited,visited_count);
+}
+
 //! Constructor
 AdjIterator::AdjIterator(const SqrSymMatrix* m) {
   _m = m;
@@ -245,9 +280,9 @@ AdjIterator::AdjIterator(const SqrSymMatrix* m) {
   _max_i = m->_data.size()-1;
 }
 
-/*! \fn void AdjIterator::first() 
- 		*  \brief A member function to set iterator at first position. 
-		
+/*! \fn void AdjIterator::first()
+ 		*  \brief A member function to set iterator at first position.
+
 	*/
 void AdjIterator::first() {
   _i = 1;
@@ -255,22 +290,22 @@ void AdjIterator::first() {
   next();
 }
 
-/*! \fn void AdjIterator::next()  
- 		*  \brief A member function to get next one in _data BITVECTOR. 
-		
-		
+/*! \fn void AdjIterator::next()
+ 		*  \brief A member function to get next one in _data BITVECTOR.
+
+
 	*/
 void AdjIterator::next() {
   while (true) {
     size_t p = (_j == -1) ? _m->_data[_i].find_first() :
                _m->_data[_i].find_next(_j);
-    if (p > _i) { 
+    if (p > _i) {
       _i++;
       _j = -1;
       if (_i > _max_i) {
         _is_done = true;
         break;
-      } 
+      }
     }
     else if (p == boost::dynamic_bitset<>::npos) {
       _is_done = true;
@@ -280,12 +315,12 @@ void AdjIterator::next() {
       _j = p;
       break;
     }
-  } 
+  }
 }
 
-/*! \fn pair<size_t, size_t> AdjIterator::current() const 
- 		*  \brief A member function to return the current position of iterator. 
-		
+/*! \fn pair<size_t, size_t> AdjIterator::current() const
+ 		*  \brief A member function to return the current position of iterator.
+
 		* \return pair<size_t,size_t>.
 	*/
 pair<size_t, size_t> AdjIterator::current() const {
@@ -300,11 +335,11 @@ bool AdjIterator::is_done() const {
   return _is_done;
 }
 
-/*! \fn NodeAdjIterator::NodeAdjIterator(const SqrSymMatrix* m, size_t i) 
- 		*  \brief Constructor. 
+/*! \fn NodeAdjIterator::NodeAdjIterator(const SqrSymMatrix* m, size_t i)
+ 		*  \brief Constructor.
 		*	\param m a constant pointer of SqrSymMatrix.
 		*	\param i a size_t.
-		
+
 	*/
 NodeAdjIterator::NodeAdjIterator(const SqrSymMatrix* m, size_t i) {
   _m = m;
@@ -317,19 +352,19 @@ NodeAdjIterator::NodeAdjIterator(const SqrSymMatrix* m, size_t i) {
   }
 }
 
-/*! \fn void AdjIterator::first() 
- 		*  \brief A member function to set iterator at first position. 
-		
+/*! \fn void AdjIterator::first()
+ 		*  \brief A member function to set iterator at first position.
+
 	*/
 void NodeAdjIterator::first() {
   _j = -1;
   next();
 }
 
-/*! \fn void AdjIterator::next()  
- 		*  \brief A member function to get next one in _data BITVECTOR. 
-		
-		
+/*! \fn void AdjIterator::next()
+ 		*  \brief A member function to get next one in _data BITVECTOR.
+
+
 	*/
 void NodeAdjIterator::next() {
   size_t p = (_j == -1) ? _m->_data[_i].find_first() :
@@ -340,9 +375,9 @@ void NodeAdjIterator::next() {
     _j = p;
 }
 
-/*! \fn pair<size_t, size_t> AdjIterator::current() const 
- 		*  \brief A member function to return the current position of iterator. 
-		
+/*! \fn pair<size_t, size_t> AdjIterator::current() const
+ 		*  \brief A member function to return the current position of iterator.
+
 		* \return  a size_t.
 	*/
 size_t NodeAdjIterator::current() const {

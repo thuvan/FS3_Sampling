@@ -8,6 +8,7 @@
 using namespace std;
 
 char* datafile;
+char* out_file_name;
 int subgraph_size;
 int uniq_pat_count;
 int max_iter;
@@ -22,6 +23,7 @@ typedef typename RDW_MAP::const_iterator RDW_MAPCIT; //!< Constant Iterator
 template<> vector<int> Database<PAT>::_no_data = Database<PAT>::set_static_data();
 template<> PatternFactory<PAT>* PatternFactory<PAT>::_instance = PatternFactory<PAT>::set_static_data();
 //template<> PatternFactory<PAT>::set_static_data();
+typedef lattice_node<PAT> LATTICE_NODE;
 
 void print_usage(char *prog) {
   cerr<<"Usage: "<<prog<<" -d data-file -c count -s subgraph-size"<<endl;
@@ -73,8 +75,13 @@ int selectGraphForSampling(Database<PAT>* database){
 int main(int argc, char *argv[]) {
 
 	bool zero_neighbors;
-  parse_args(argc, argv);
-
+  //parse_args(argc, argv); //-c 10 -s 4
+  //datafile="dataset\\GRAPH_int_toy3.txt";
+  datafile="dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt";
+  out_file_name = "dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt.KFSAM.output";
+  subgraph_size=3;
+  max_iter=10;
+  top_k=5;
 
   Database<PAT>* database;
   /* creating database and loading data */
@@ -120,26 +127,23 @@ int main(int argc, char *argv[]) {
         rdw = it->second;
       }
 
-      double h_score ;
-      PAT* h = rdw->sampling_subgraph_by_Edge_Graph(h_score); // return a subgraph and it's score
+      double freq ;
+      //LATTICE_NODE* lNode = rdw->sampling_subgraph_by_Edge_Graph(freq); // return a subgraph and it's score
+      LATTICE_NODE* lNode = rdw->sampling_subgraph(freq);
+      PAT* h =lNode->_pat;
+
       if (h!=NULL){
-        cout<<"Sampled subgraph: score = "<<h_score<<endl;
+        cout<<"Sampled subgraph: score = "<<freq<<endl;
         cout<<*h;
       }
 
-      if (Q.isFull() && h_score<Q.getHalfAvgScore())
+      if (Q.isFull() && freq<Q.getMinScore())
         continue;
 
       Queue_Item* qItem = Q.findByGraph(h);
       if (qItem!=NULL)
       {
-
-        int preSupport = qItem->idset.size();
-        int idx = find_in_vector(qItem->idset,graph_id);
-        if (idx==-1){
-          qItem->idset.push_back(graph_id);
-          qItem->insert_time = cur_iter;
-        }
+        qItem->insert_time = cur_iter;
       }
       else
       {
@@ -148,16 +152,20 @@ int main(int argc, char *argv[]) {
 
         qItem = new Queue_Item();
         qItem->subgraph = h;
-        qItem->idset.push_back(graph_id);
-        qItem->insert_time = cur_iter;
+        //qItem->idset.push_back(graph_id);
+        for(int i=0;i<lNode->_support_set->size();i++)
+          qItem->idset.push_back(lNode->_support_set->at(i));
 
-        qItem->score = h_score;
+        qItem->insert_time = cur_iter;
+        qItem->score = freq;
         Q.push(qItem);
       }
   }
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
   Q.print();
+  Q.print_to_file(out_file_name);
+  Q.free();
   ///TODO: delete random_walks, delete Queue
   delete database;
   cout << "FINISHED, PRESS ENTER TO EXIST!"<<endl;
