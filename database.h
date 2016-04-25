@@ -349,7 +349,9 @@ class Database {
       infile.seekg(pos);
       int id = -1;
       while (1) {
+        cout<<"pos0 = " <<pos<<endl;
         pos = infile.tellg();
+        cout<<"pos1 = " <<pos<<endl;
         safeGetline(infile, one_line);
         cout << one_line << endl;
         if (one_line.length()<1) {

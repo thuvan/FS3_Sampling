@@ -9,8 +9,8 @@ typedef ExPattern<int, int> PAT;
 class Queue_Item{
 public:
   void free(){
-    if (subgraph!=NULL)
-      delete(subgraph);
+//    if (subgraph!=NULL)
+//      delete(subgraph);
   }
   void print(){
     cout<<"score= "<<score<<"\t time= "<<insert_time<<endl;
@@ -20,6 +20,16 @@ public:
     cout<<">"<<endl;
     cout<<"subgraph: "<<endl;
     cout<<*subgraph<<endl;
+  }
+
+  void print_to_file(ostream& ostr){
+    ostr<<"score= "<<score<<"\t time= "<<insert_time<<endl;
+    ostr<<"idset = <";
+    for(int i=0;i<idset.size();i++)
+      ostr<<idset[i]<<",";
+    ostr<<">"<<endl;
+    ostr<<"subgraph: "<<endl;
+    ostr<<*subgraph<<endl;
   }
   ///TODO: score cua subgraph o moi graph co the khac nhau => score luu score o graph nao?
   double score;
@@ -86,11 +96,28 @@ class Priority_Queue
 
     void print()
     {
-      for(int i=0;i<_data.size();i++){
+      for(int i=_data.size()-1;i>=0;i--){
         Queue_Item* item = _data[i];
-        cout<<i<<"): "<<endl;
+        cout<<(_data.size()-i-1)<<"): "<<endl;
         item->print();
       }
+    }
+
+    void print_to_file(char* out_file_name)
+    {
+      std::ofstream ostr;
+      ostr.open(out_file_name);
+      if (!ostr.is_open()){
+        cout<< "Unable to open file "<<out_file_name<<" for writing."<<endl;
+        return;
+      }
+      cout<< "Begin write queue to file '"<<out_file_name<<"' \n";
+      for(int i=_data.size()-1;i>=0;i--){
+        Queue_Item* item = _data[i];
+        ostr<<(_data.size()-i-1)<<"): "<<endl;
+        item->print_to_file(ostr);
+      }
+      ostr.close();
     }
 
     int size(){ return _data.size();}

@@ -8,6 +8,7 @@
 using namespace std;
 
 char* datafile;
+char* out_file_name;
 int subgraph_size;
 int uniq_pat_count;
 int max_iter;
@@ -74,8 +75,13 @@ int selectGraphForSampling(Database<PAT>* database){
 int main(int argc, char *argv[]) {
 
 	bool zero_neighbors;
-  parse_args(argc, argv);
-
+  //parse_args(argc, argv); //-c 10 -s 4
+  //datafile="dataset\\GRAPH_int_toy3.txt";
+  datafile="dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt";
+  out_file_name = "dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt.KFSAM.output";
+  subgraph_size=3;
+  max_iter=10;
+  top_k=5;
 
   Database<PAT>* database;
   /* creating database and loading data */
@@ -122,7 +128,8 @@ int main(int argc, char *argv[]) {
       }
 
       double freq ;
-      LATTICE_NODE* lNode = rdw->sampling_subgraph_by_Edge_Graph(freq); // return a subgraph and it's score
+      //LATTICE_NODE* lNode = rdw->sampling_subgraph_by_Edge_Graph(freq); // return a subgraph and it's score
+      LATTICE_NODE* lNode = rdw->sampling_subgraph(freq);
       PAT* h =lNode->_pat;
 
       if (h!=NULL){
@@ -157,6 +164,7 @@ int main(int argc, char *argv[]) {
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
   Q.print();
+  Q.print_to_file(out_file_name);
   Q.free();
   ///TODO: delete random_walks, delete Queue
   delete database;

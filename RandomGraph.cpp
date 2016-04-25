@@ -17,7 +17,12 @@ typedef struct database_properties {
    int      random_seed;
 
    void get_file_name(string& fileName){
-     fileName = "size"+SSTR(total_number_graph)+"_v"+SSTR(total_number_vertex)+".txt";
+     fileName = "database_size"+SSTR(total_number_graph)
+                          +"_v"+SSTR(total_number_vertex)
+                          +"_vMin"+SSTR(graph_min_size)
+                          +"_vMax"+SSTR(graph_max_size)
+                          +"_seed"+SSTR(random_seed)
+                          +".txt";
    }
 } DatabaseProperties;
 
@@ -43,9 +48,9 @@ int main()
   char* out_file_name ;//= "output.txt";
   DatabaseProperties config;
   config.total_number_graph = 10;
-  config.total_number_vertex = 10;
-  config.graph_min_size = 3;
-  config.graph_max_size = 10;//config.total_number_vertex;
+  config.total_number_vertex = 5;
+  config.graph_min_size = 4;
+  config.graph_max_size = config.total_number_vertex;
   config.random_seed = 3571;
 
 
@@ -59,6 +64,7 @@ int main()
   if (config.graph_max_size>config.total_number_vertex)
   {
     printf("Max graph size cannot larger than total number of vertex");
+    getchar();
     return 1;
   }
   FILE *out_file;

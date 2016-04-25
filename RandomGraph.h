@@ -1678,31 +1678,31 @@ void print_graph( int v,
                   int* vertex_labels)
 {
    int i, j, index;
-   fprintf( fp, "t # %d\n",graph_id);
+   fprintf( fp, "t # %d\r",graph_id);
 
    if ( !dir_flag ){
       ///print vertexes
-      for ( i = 1; i < v; i++ ){
-        fprintf( fp,"v %d %d\n",i-1,vertex_labels[i]);
+      for ( i = 0; i < v; i++ ){
+        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
       }
       ///print edges
       for ( i = 1; i < v; i++ )
          for ( j = i + 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
             if ( adj_matrix[ index ] )
-               fprintf( fp, "e %d %d %d\n", i-1, j-1, adj_matrix[ index ] );
+               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
          }
    }else{
       ///print vertexes
-      for ( i = 1; i < v; i++ ){
-        fprintf( fp,"v %d %d\n",i-1,vertex_labels[i]);
+      for ( i = 0; i <= v; i++ ){
+        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
       }
       ///edges
       for ( i = 1; i <= v; i++ )
          for ( j = 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
             if ( adj_matrix[ index ] )
-               fprintf( fp, "e %d %d %d\n", i-1, j-1, adj_matrix[ index ] );
+               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
          }
    }
 }

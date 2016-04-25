@@ -162,9 +162,9 @@ class Uniform_SubGraph_Random_Walk
     }
     std::sort(vrank.begin(), vrank.end(),sort_pred());
     ///test
-    cout << "rank of vertexes:"<<endl;
-    for(int i=0;i<vrank.size();i++)
-      cout<<"\t"<<current->_vids[vrank[i].first] <<", "<<vrank[i].second<<endl;
+//    cout << "rank of vertexes:"<<endl;
+//    for(int i=0;i<vrank.size();i++)
+//      cout<<"\t"<<current->_vids[vrank[i].first] <<", "<<vrank[i].second<<endl;
 
     ///select vertex for remove: select vertex co rank min
     int removeVid;
@@ -183,9 +183,6 @@ class Uniform_SubGraph_Random_Walk
     cout<< "removed vertex index: "<<removeIndex<<", vid: "<<removeVid<<endl;
     cout<< "replaceable vids: ";
     print_vector(*replacableVids);
-//    for(int i=0;i<replacableVids->size();i++)
-//      cout <<replacableVids->at(i)<<", ";
-//    cout<<endl;
 
     ///select vertex that has max rank
     double maxScore=-1;
@@ -219,7 +216,7 @@ class Uniform_SubGraph_Random_Walk
 
 
 
-  PAT* sampling_subgraph(double& score)
+  LATTICE_NODE* sampling_subgraph(double& score)
   {
     if(!_isInitialized)
       _last_node = initialize();
@@ -249,7 +246,7 @@ class Uniform_SubGraph_Random_Walk
       next = NULL;
     }
     score = _last_node->_score;
-    return _last_node->_pat;
+    return _last_node;
   }
 
   LATTICE_NODE* sampling_subgraph_by_Edge_Graph(double& score)
