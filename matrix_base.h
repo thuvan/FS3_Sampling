@@ -21,8 +21,8 @@ class Matrix
 
 
   public:
-    typedef boost::dynamic_bitset<> BITVECTOR;    
-    //! Default constructor   
+    typedef boost::dynamic_bitset<> BITVECTOR;
+    //! Default constructor
     Matrix();
 
     //! constructor that allocates memory, and initialize all cell of the matrix as 0
@@ -40,7 +40,7 @@ class Matrix
     bool at(const unsigned int& r, const unsigned int& c) const;
 
     void reset(const unsigned int& r);
-   
+
     //! set the value of the element [r][c]
     void set(const unsigned int& r, const unsigned int& c, bool val);
 
@@ -67,7 +67,7 @@ class SqrSymMatrix :  public Matrix {
 
 		//! Constructor
     SqrSymMatrix(size_t n);
- 
+
     int add_vertex();
 
     void change_adj_matrix(int size, const vector<pair<int, int> >& adj_list);
@@ -80,6 +80,8 @@ class SqrSymMatrix :  public Matrix {
 
     bool essential_edge(int src, int dst) const;
 
+    bool check_connected(const vector<int>& vids) const;
+
     inline size_t size() const {return _size;};
 
     friend class AdjIterator;
@@ -88,8 +90,9 @@ class SqrSymMatrix :  public Matrix {
    size_t _size;
 
   private:
- 
+
     bool dfs_visit(int src, BITVECTOR& visited, int dst) const;
+    bool dfs_visit(int src_index, const vector<int>& vids,BITVECTOR& visited, int& visited_count) const;
 };
 
 //! A AdjIterator Class for Returning each edge only once
@@ -108,7 +111,7 @@ class AdjIterator {
     bool is_done() const;
 
   private:
-    const SqrSymMatrix* _m;    
+    const SqrSymMatrix* _m;
     int _i; //!< row-pos
     int _j; //!< col-pos
     bool _is_done;
@@ -131,7 +134,7 @@ class NodeAdjIterator {
     bool is_done() const;
 
   private:
-    const SqrSymMatrix* _m;    
+    const SqrSymMatrix* _m;
     int _i; //!< row-pos
     int _j; //!< col-pos
     bool _is_done;

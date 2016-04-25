@@ -46,7 +46,7 @@ class Uniform_SubGraph_Random_Walk
     _subgraph_size=subgraph_size;
     _graph_id = graph_id;
     _graph = _database->get_graph_by_id(_graph_id);
-    cout << "Create a random walk manager for graph id:" << _graph_id << endl;
+    //cout << "Create a random walk manager for graph id:" << _graph_id << endl;
   }
 
 	//! get PatternFactory object
@@ -70,7 +70,7 @@ class Uniform_SubGraph_Random_Walk
     }
     //get key code for Lattice node
     std::string node_key = lNode->get_key();
-    cout<<"code: "<<node_key<<endl;
+    cout<<"create lattice node, code: "<<node_key<<endl;
 
 //    cout<<"vertex indexs after getkey(): ";
 //    for(int i=0;i<lNode->_vids.size();i++)
@@ -127,9 +127,9 @@ class Uniform_SubGraph_Random_Walk
 	*/
   LATTICE_NODE* get_random_next(LATTICE_NODE* current){
     vector<int> vids;
+    //cout<<" current's number neighbors_count = "<<current->_neighbors_count<<endl;
     int idx = boost_get_a_random_number(0,current->_neighbors_count);
     current->get_neighbor_at(idx,vids);
-
     LATTICE_NODE* lNode = create_lattice_node(vids);
     return lNode;
   }
@@ -158,9 +158,11 @@ class Uniform_SubGraph_Random_Walk
       double rd = random_uni01();
       //check probability
       if (rd <= accp_probablility){
+        cout<<"accept lattice node: "<<next->get_key()<<endl;
         _last_node = next;
         break;
-      }
+      }else
+        cout<<"ignore lattice node: "<<next->get_key()<<endl;
       next = NULL;
     }
     score = _last_node->_score;
@@ -243,17 +245,17 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
-    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
-    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
-
-    cout<<"neighbors count: "<<dx<<endl;
-    for(int i=0;i<nbs_vids.size();i++)
-    {
-      cout<<i<<") v"<<vids[i]<<": ";
-      for (int j=0;j<nbs_vids[i]->size();j++)
-        cout<<nbs_vids[i]->operator[](j)<<" ";
-      cout<<endl;
-    }
+//    vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
+//    vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
+//
+//    cout<<"neighbors count: "<<dx<<endl;
+//    for(int i=0;i<nbs_vids.size();i++)
+//    {
+//      cout<<i<<") v"<<vids[i]<<": ";
+//      for (int j=0;j<nbs_vids[i]->size();j++)
+//        cout<<nbs_vids[i]->operator[](j)<<" ";
+//      cout<<endl;
+//    }
 
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
@@ -261,8 +263,8 @@ class Uniform_SubGraph_Random_Walk
     p->set_canonical_code(cc);
     n->_pat = p;
 
-    cout << "Current pattern:\n";
-    cout << *p;
+//    cout << "Current pattern:\n";
+//    cout << *p;
 
     compute_score(n);
 
