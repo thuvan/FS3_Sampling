@@ -78,5 +78,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-FS3_Sampling.layout
-FS3_Sampling.depend
+*.layout
+*.depend
