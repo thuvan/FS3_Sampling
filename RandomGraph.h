@@ -171,7 +171,10 @@ in Proceedings of the 22nd SIGCSE Technical Symposium.
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
+using namespace std;
 /*** record for qsorting a graph to provide another isomorphic to it ***/
 #define RecordSize 24
 typedef struct {
@@ -185,9 +188,16 @@ void print_graph( int v,
                   char* out_file,
                   int* adj_matrix,
                   int dir_flag );
+//void print_graph( int v,
+//                  int e,
+//                  FILE* fp,
+//                  int* adj_matrix,
+//                  int dir_flag,
+//                  int graph_id,
+//                  int* vertex_labels);
 void print_graph( int v,
                   int e,
-                  FILE* fp,
+                  ostream& fp,
                   int* adj_matrix,
                   int dir_flag,
                   int graph_id,
@@ -406,12 +416,12 @@ static Menu        menu = &menu_structure;
 static int   build_more_graphs,
              menu_choice;
 
-/* min, max, odd */
-#undef min
-#define min( x, y )   ((( x ) < ( y )) ? ( x ) : ( y ))
+/* Min, max, odd */
+#undef Min
+#define Min( x, y )   ((( x ) < ( y )) ? ( x ) : ( y ))
 
-#undef max
-#define max( x, y )   ((( x ) > ( y )) ? ( x ) : ( y ))
+#undef Max
+#define Max( x, y )   ((( x ) > ( y )) ? ( x ) : ( y ))
 
 #define odd( num )    ( ( num ) % 2 )
 
@@ -868,8 +878,8 @@ void isomorphic_graph_pair( int vertices,
             for ( j = i + 1; j < vertices; j++ ) {
                if ( vertex_degree[ aux[ j ] ] < spec_degree ) {
                   w = aux[ j ];
-                  base = min( v, w );
-                  offset = max( v, w );
+                  base = Min( v, w );
+                  offset = Max( v, w );
                   index1 = ( base * vertices ) + offset;
                   if ( !adj_matrix[ index1 ] ) { /* no edge so add one */
                      adj_matrix[ index1 ] = 1;
@@ -895,17 +905,17 @@ void isomorphic_graph_pair( int vertices,
             Add edges (v1,v2) and (v1,w2) and delete edge (v2,w2).  */
          for ( i = 0; i < vertices - 1; i++ ) {
             if ( v1 != ( v2 = aux[ i ] ) ) {
-               base = min( v1, v2 );
-               offset = max( v1, v2 );
+               base = Min( v1, v2 );
+               offset = Max( v1, v2 );
                index1 = ( base * vertices ) + offset;
                if ( !adj_matrix[ index1 ] ) {
                   for ( j = i + 1; j < vertices; j++ ) {
                      if ( ( w2 = aux[ j ] ) != v1 ) {
-                        base = min( v2, w2 );
-                        offset = max( v2, w2 );
+                        base = Min( v2, w2 );
+                        offset = Max( v2, w2 );
                         index2 = ( base * vertices ) + offset;
-                        base = min( v1, w2 );
-                        offset = max( v1, w2 );
+                        base = Min( v1, w2 );
+                        offset = Max( v1, w2 );
                         index3 = ( base * vertices ) + offset;
                         if ( adj_matrix[ index2 ]  &&  !adj_matrix[ index3 ] ) {
                            adj_matrix[ index1 ] =
@@ -935,17 +945,17 @@ void isomorphic_graph_pair( int vertices,
             edge (v1,v2) yet there are no edges (v1,w2) and (w1,v2).]      */
          for ( i = 0; i < vertices; i++ ) {
             if ( v1 != ( v2 = aux[ i ] ) && v2 != w1 ) {
-               base = min( v1, v2 );
-               offset = max( v1, v2 );
+               base = Min( v1, v2 );
+               offset = Max( v1, v2 );
                index1 = ( base * vertices ) + offset;
                if ( !adj_matrix[ index1 ] ) {
                   for ( j = 0; j < vertices; j++ ) {
                      if ( ( w2 = aux[ j ] ) != v1 && w2 != w1 ) {
-                        base = min( v2, w2 );
-                        offset = max( v2, w2 );
+                        base = Min( v2, w2 );
+                        offset = Max( v2, w2 );
                         index2 = ( base * vertices ) + offset;
-                        base = min( w1, w2 );
-                        offset = max( w1, w2 );
+                        base = Min( w1, w2 );
+                        offset = Max( w1, w2 );
                         index3 = ( base * vertices ) + offset;
                         if ( adj_matrix[ index2 ]  &&  !adj_matrix[ index3 ] ) {
                            adj_matrix[ index2 ] = 0;
@@ -1071,7 +1081,7 @@ void random_connected_graph( int v,
                              int e,
                              int max_wgt,
                              int weight_flag,
-                             FILE* out_file,
+                             ostream& ostr,
                              int graph_id,
                              int* vertex_labels)
 {
@@ -1129,14 +1139,14 @@ void random_connected_graph( int v,
       }
    }
    printf("begin write to file graph %d",graph_id);
-   print_graph( v, count, out_file, adj_matrix, Undirected ,graph_id,vertex_labels);
+   print_graph(v, count, ostr, adj_matrix, Undirected ,graph_id,vertex_labels);
 
    free( tree );
    free( adj_matrix );
 }
 
 /* This function generates a random connected simple graph with
-   v vertices and max(v-1,e) edges.  The graph can be weighted
+   v vertices and Max(v-1,e) edges.  The graph can be weighted
    (weight_flag == 1) or unweighted (weight_flag != 1). If
    it is weighted, the weights are in the range 1 to max_wgt.
    It is assumed that e <= v(v-1)/2. (In this program, this assured
@@ -1458,7 +1468,7 @@ void complete_graph( int v,
 
 /* This function writes a simple graph with a Hamiltonian cycle to one
    file and a Hamiltonian cycle to another file. The graph will
-   have max(e,v) edges. The graph can be directed or undirected. It is
+   have Max(e,v) edges. The graph can be directed or undirected. It is
    assumed that e <= v(v-1)/2 if the graph is undirected, and that
    e <= v(v-1) if the grpah is directed. (In this program,
    this assured because of the call to fix_imbalanced_graph.)
@@ -1669,43 +1679,82 @@ int ran( int k )
    return rand() % k;
 }
 
+
 void print_graph( int v,
                   int e,
-                  FILE* fp,
+                  std::ostream& ostr,
                   int* adj_matrix,
                   int dir_flag,
                   int graph_id,
                   int* vertex_labels)
 {
    int i, j, index;
-   fprintf( fp, "t # %d\r",graph_id);
+   ostr<< "t # "<<graph_id<<"\r";
 
    if ( !dir_flag ){
       ///print vertexes
       for ( i = 0; i < v; i++ ){
-        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
+        ostr<<"v " <<i <<" "<< vertex_labels[i]<<"\r";
       }
       ///print edges
       for ( i = 1; i < v; i++ )
          for ( j = i + 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
             if ( adj_matrix[ index ] )
-               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
+               ostr<<"e "<< i-1 <<" "<< j-1 <<" "<< adj_matrix[ index ] <<"\r";
          }
    }else{
       ///print vertexes
       for ( i = 0; i <= v; i++ ){
-        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
+        ostr<<"v " <<i <<" "<< vertex_labels[i]<<"\r";
       }
       ///edges
       for ( i = 1; i <= v; i++ )
          for ( j = 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
             if ( adj_matrix[ index ] )
-               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
+               ostr<<"e "<< i-1 <<" "<< j-1 <<" "<< adj_matrix[ index ] <<"\r";
          }
    }
 }
+
+//void print_graph( int v,
+//                  int e,
+//                  FILE* fp,
+//                  int* adj_matrix,
+//                  int dir_flag,
+//                  int graph_id,
+//                  int* vertex_labels)
+//{
+//   int i, j, index;
+//   fprintf( fp, "t # %d\r",graph_id);
+//
+//   if ( !dir_flag ){
+//      ///print vertexes
+//      for ( i = 0; i < v; i++ ){
+//        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
+//      }
+//      ///print edges
+//      for ( i = 1; i < v; i++ )
+//         for ( j = i + 1; j <= v; j++ ) {
+//            index = ( i - 1 ) * v + j - 1;
+//            if ( adj_matrix[ index ] )
+//               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
+//         }
+//   }else{
+//      ///print vertexes
+//      for ( i = 0; i <= v; i++ ){
+//        fprintf( fp,"v %d %d\r",i,vertex_labels[i]);
+//      }
+//      ///edges
+//      for ( i = 1; i <= v; i++ )
+//         for ( j = 1; j <= v; j++ ) {
+//            index = ( i - 1 ) * v + j - 1;
+//            if ( adj_matrix[ index ] )
+//               fprintf( fp, "e %d %d %d\r", i-1, j-1, adj_matrix[ index ] );
+//         }
+//   }
+//}
 
 void print_graph( int v,
                   int e,
