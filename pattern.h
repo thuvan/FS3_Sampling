@@ -248,6 +248,27 @@ class ExPattern
       return _removable_edges.size();
     }
 
+    ostream& print(ostream& ostr){
+      if (size() == 0) {
+        cout << "NULL" << endl;
+        cout << "Support:" << _vat.size() << endl;
+        return ostr;
+      }
+      //print vertex
+      for(int i=0; i < this->size();i++){
+        ostr<<"v "<<i<<" "<< this->get_adj_matrix()->label(i)<<endl;
+      }
+      //print edges
+      AdjIterator iter(_matrix);
+      for (iter.first(); !iter.is_done(); iter.next()) {
+        pair<int, int> edge = iter.current();
+        int first = edge.first;
+        int second = edge.second;
+        ostr <<"e "<< first << " " << second << " " << _matrix->get_edge_label(first, second) << endl;
+      }
+      return ostr;
+    }
+
 		/*! \fn const vector<pair<int, int> >& get_removable_edges() const
  		*  \brief A member function to get possible removable an edges from a pattern.
 		*  \return a constant vector of <int,int> pair
