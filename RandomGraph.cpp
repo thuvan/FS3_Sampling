@@ -2,6 +2,8 @@
 #include "RandomGraph.h"
 #include <string>
 #include <sstream>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -67,11 +69,17 @@ int main()
     getchar();
     return 1;
   }
-  FILE *out_file;
-  if ( ( out_file = fopen( out_file_name, "w" ) ) == NULL ) {
-      printf( "Unable to open file %s for writing.\n", out_file_name );
-      return 2;
-   }
+  std::ofstream ostr;
+  ostr.open(out_file_name);
+  if (!ostr.is_open()){
+    cout<< "Unable to open file "<<out_file_name<<" for writing."<<endl;
+    return 2;
+  }
+//  FILE *out_file;
+//  if ( ( out_file = fopen( out_file_name, "w" ) ) == NULL ) {
+//      printf( "Unable to open file %s for writing.\n", out_file_name );
+//      return 2;
+//   }
   printf( "\n\t", out_file_name );
    ///init random generator
   srand(config.random_seed);
@@ -97,13 +105,13 @@ int main()
                               edge_count, //edge_count,
                               1,  //max_weight,
                               true,//weighted_p,
-                              out_file, //menu -> outfiles.outfile1
+                              ostr, //menu -> outfiles.outfile1
                               i,
                               vertex_labels
                             );
     free(vertex_labels);
   }
-   fclose( out_file );
-   printf( "\tGraph is written to file %s.\n", out_file );
+   ostr.close();
+   printf( "\tGraph is written to file %s.\n", out_file_name );
    return 0;
 }

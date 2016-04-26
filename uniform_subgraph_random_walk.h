@@ -11,6 +11,7 @@
 #include "random.h"
 #include "time_tracker.h"
 #include "functional"
+#include "VectorUtility.h"
 
 /**
  * This performs random walk on frequent patterns to find uniform sample of frequent
@@ -294,7 +295,6 @@ class Uniform_SubGraph_Random_Walk
     const multiset<EDGE>& mset = pat->get_edgeset();
     //vector<int> spset_intersec;
     lNode->_support_set=new vector<int>();
-
     //multiset<int>::iterator it;
     for (EDGE_IT it=mset.begin(); it!=mset.end(); ++it) //duyet qua danh sach canh
     {
@@ -306,22 +306,38 @@ class Uniform_SubGraph_Random_Walk
       }
       else // support set da co du lieu
       {
-        //remove
-        for(int i=lNode->_support_set->size()-1;i>=0;i--) //duyet qua danh sach support set cua subgraph
-        {
-          bool found=false;
-          //kiem tra xem graph i co support cho canh hien tai hay ko
-          for(int j=0;j<spset.size();j++)
-            if (lNode->_support_set->operator[](i)==spset[j])
-            {
-              found = true;
-              break;
-            }
-          if (!found) //neu graph thu i trong support_set ko support cho canh it thi remove
-            lNode->_support_set->erase (lNode->_support_set->begin()+i);
-        }
+        intersect_vectors(lNode->_support_set,spset);
       }
     }
+    ///find set of all missing edge in subgraph
+    vector<EDGE> missing_edge_set;
+    for(int i=0;i<lNode->_vids.size();i++)
+      for(int j=i+1;j<lNode->_vids.size();j++)
+      {
+        int v1 = lNode->_vids[i];
+        int v2 = lNode->_vids[j];
+        if (_graph->get_adj_matrix()->at(v1,v2)==false){
+          V_T vl1 = _graph->get_adj_matrix()->label(v1);
+          V_T vl2 = _graph->get_adj_matrix()->label(v2);
+          EDGE e = (vl1<vl2)? make_pair(make_pair(vl1, vl2), 1) : make_pair(make_pair(vl2, vl1), 1);
+          missing_edge_set.push_back(e);
+        }
+      }
+    cout<<"missing edges: "<<missing_edge_set.size()<<endl;
+    for(int i=0;i<missing_edge_set.size();i++)
+      cout<<"("<<missing_edge_set[i].first.first<<", "<<missing_edge_set[i].first.second<<"); ";
+    cout <<endl;
+
+    ///find union set of graphs that support missing edges
+    vector<int> support_missing_edges_graphid;
+    for(int i=0;i<missing_edge_set.size();i++)
+    {
+      vector<int> spset = _database->get_support_set(missing_edge_set[i]); //lay ds graph support canh it
+      union_vectors(&support_missing_edges_graphid,spset);
+    }
+    ///subtract intersection of full support set by union of support set of missing edges
+    subtract_vectors(lNode->_support_set,support_missing_edges_graphid);
+
     lNode->_score = lNode->_support_set->size();
     return lNode->_support_set->size();
   }
