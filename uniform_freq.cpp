@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
   datafile="dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt";
   out_file_name = "dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt.FS3.output";
   subgraph_size=3;
-  max_iter=10;
+  max_iter=200;
   top_k=5;
 
   Database<PAT>* database;

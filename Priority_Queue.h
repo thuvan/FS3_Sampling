@@ -22,15 +22,19 @@ public:
     cout<<*subgraph<<endl;
   }
 
-  void print_to_file(ostream& ostr){
-    ostr<<"score= "<<score<<"\t time= "<<insert_time<<endl;
-    ostr<<"idset = <";
-    for(int i=0;i<idset.size();i++)
-      ostr<<idset[i]<<",";
-    ostr<<">"<<endl;
-    ostr<<"subgraph: "<<endl;
-    ostr<<*subgraph<<endl;
+  void print_to_file(ostream& ostr,int id){
+    ostr<<"t #"<<id<<" size= "<<subgraph->size()<<", score= "<<score<<", time= "<<insert_time<<", freq= "<<idset.size()<<", idset= [";
+    for(int i=0;i<idset.size();i++){
+        if (i==0)
+          ostr<<idset[i];
+        else
+          ostr<<", "<<idset[i];
+    }
+    ostr<<"]"<<endl;
+    //ostr<<"subgraph: "<<endl;
+    subgraph->print(ostr);
   }
+
   ///TODO: score cua subgraph o moi graph co the khac nhau => score luu score o graph nao?
   double score;
   vector<int> idset;
@@ -114,8 +118,9 @@ class Priority_Queue
       cout<< "Begin write queue to file '"<<out_file_name<<"' \n";
       for(int i=_data.size()-1;i>=0;i--){
         Queue_Item* item = _data[i];
-        ostr<<(_data.size()-i-1)<<"): "<<endl;
-        item->print_to_file(ostr);
+        //ostr<<(_data.size()-i-1)<<"): "<<endl;
+        int id = _data.size()-1-i;
+        item->print_to_file(ostr,id);
       }
       ostr.close();
     }
