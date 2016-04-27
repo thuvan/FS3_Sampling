@@ -77,8 +77,8 @@ int main(int argc, char *argv[]) {
 	bool zero_neighbors;
   //parse_args(argc, argv); //-c 10 -s 4
   //datafile="dataset\\GRAPH_int_toy3.txt";
-  datafile="dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt";
-  out_file_name = "dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt.KFSAM.output";
+  datafile="dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt";
+  out_file_name = "dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt.KFSAM.output";
   subgraph_size=3;
   max_iter=10;
   top_k=5;

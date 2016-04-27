@@ -49,7 +49,7 @@ int main()
 {
   char* out_file_name ;//= "output.txt";
   DatabaseProperties config;
-  config.total_number_graph = 10;
+  config.total_number_graph = 5;
   config.total_number_vertex = 5;
   config.graph_min_size = 4;
   config.graph_max_size = config.total_number_vertex;
