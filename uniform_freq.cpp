@@ -204,6 +204,25 @@ Queue_Item& sampling_subgraph(RDW_MAP& rdw_map,Database<PAT>* const database,int
   return rs;
 }
 
+int selectGraphForSampling(Database<PAT>* database, PAT** g){
+  //select a graph uniformly
+  int graph_id =-1;
+  do{
+    graph_id = database->get_random_graph_id();
+    *g = database->get_graph_by_id(graph_id);
+  }while((*g)->size()<= subgraph_size);
+//  //get random graph
+//  if(cur_iter <= top_k)
+//  {
+//      graph_id = database ->get_random_GraphID_by_FirstRow(); // just get randomly 1 graph from the first row.
+//  }
+//  else
+//  {
+//      graph_id = database ->get_random_GraphID(); // get randomly 1 graph from all rows.
+//  }
+  return graph_id;
+}
+
 /*! main function */
 int main(int argc, char *argv[]) {
 
@@ -211,10 +230,10 @@ int main(int argc, char *argv[]) {
   //parse_args(argc, argv);
   //datafile="dataset\\GRAPH_int_toy3.txt";
   //datafile="dataset\\data_size4_v10.txt";
-  datafile="dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt";
-  out_file_name = "dataset\\database_size10_v5_vMin4_vMax5_seed3571.txt.FS3.output";
-  subgraph_size=3;
-  max_iter=200;
+  datafile="dataset\\database_size100_v50_vMin30_vMax50_seed3571.txt";
+  out_file_name = "dataset\\database_size100_v50_vMin30_vMax50_subSize_5.FS3.output";
+  subgraph_size=5;
+  max_iter=100000;
   top_k=5;
 
   Database<PAT>* database;
@@ -228,7 +247,7 @@ int main(int argc, char *argv[]) {
 
     cout << e.what() << endl;
   }
-	database->print_database();
+	//database->print_database();
 
   int cur_iter=0;
   ///TODO:
@@ -244,7 +263,7 @@ int main(int argc, char *argv[]) {
     cur_iter++;
     cout<<"================================= BEGIN SAMPLING iter: "<<cur_iter<<"=======\n";
     //select a graph uniformly
-    int graph_id = database->get_random_graph_id();
+    int graph_id = selectGraphForSampling(database,&g);
     cout<< "selected graph id: "<< graph_id<<endl;
     g = database->get_graph_by_id(graph_id);
     //cout << *g;
