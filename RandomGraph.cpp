@@ -49,9 +49,9 @@ int main()
 {
   char* out_file_name ;//= "output.txt";
   DatabaseProperties config;
-  config.total_number_graph = 5;
-  config.total_number_vertex = 5;
-  config.graph_min_size = 4;
+  config.total_number_graph = 100;
+  config.total_number_vertex = 50;
+  config.graph_min_size = 30;
   config.graph_max_size = config.total_number_vertex;
   config.random_seed = 3571;
 

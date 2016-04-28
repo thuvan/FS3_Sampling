@@ -145,7 +145,7 @@ class Priority_Queue
     Queue_Item* findByGraph(PAT* g)
     {
       string str = g->get_canonical_code().to_string();
-      cout<<"DEBUG: findByGraph, str_code = "<<str<<endl;
+      //cout<<"DEBUG: findByGraph, str_code = "<<str<<endl;
 
       for(int i=0;i<_data.size();i++){
 //        string str2 = _data[i]->subgraph->get_canonical_code().to_string();

@@ -5,6 +5,9 @@
 #include "vectorUtility.h"
 #include "Priority_Queue.h"
 
+
+//#define PRINT_DEBUG
+
 using namespace std;
 
 char* datafile;
@@ -55,10 +58,13 @@ void parse_args(int argc, char* argv[]) {
   }
 }//end parse_args()
 
-int selectGraphForSampling(Database<PAT>* database){
+int selectGraphForSampling(Database<PAT>* database, PAT** g){
   //select a graph uniformly
-  int graph_id = database->get_random_graph_id();
-
+  int graph_id =-1;
+  do{
+    graph_id = database->get_random_graph_id();
+    *g = database->get_graph_by_id(graph_id);
+  }while((*g)->size()<= subgraph_size);
 //  //get random graph
 //  if(cur_iter <= top_k)
 //  {
@@ -77,10 +83,10 @@ int main(int argc, char *argv[]) {
 	bool zero_neighbors;
   //parse_args(argc, argv); //-c 10 -s 4
   //datafile="dataset\\GRAPH_int_toy3.txt";
-  datafile="dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt";
-  out_file_name = "dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt.KFSAM.output";
-  subgraph_size=3;
-  max_iter=10;
+  datafile="dataset\\database_size100_v50_vMin30_vMax50_seed3571.txt";
+  out_file_name = "dataset\\database_size100_v50_vMin30_vMax50_subSize5.KFSAM.output";
+  subgraph_size= 5;
+  max_iter=500;
   top_k=5;
 
   Database<PAT>* database;
@@ -95,8 +101,11 @@ int main(int argc, char *argv[]) {
 
     cout << e.what() << endl;
   }
+#ifdef PRINT_DEBUG
 	database->print_database();
 	database->print_ordered_edges_list();
+#endif // PRINT_DEBUG
+
   int cur_iter=0;
   ///TODO:
   //QUEUE* queue;
@@ -112,10 +121,10 @@ int main(int argc, char *argv[]) {
       cur_iter++;
       int graph_id;
 
-      graph_id = selectGraphForSampling(database);
+      graph_id = selectGraphForSampling(database,&g);
       cout<< "selected graph: \n"<< graph_id<<endl;
       g = database->get_graph_by_id(graph_id);
-      cout << *g;
+      //cout << *g;
 
       RDW_MAPIT it = rdw_map.find(graph_id);
       RANDOM_WALK* rdw;
@@ -134,7 +143,8 @@ int main(int argc, char *argv[]) {
 
       if (h!=NULL){
         cout<<"Sampled subgraph: score = "<<freq<<endl;
-        cout<<*h;
+        cout<<"Sampled subgraph: key = "<<lNode->get_key()<<endl;
+        //cout<<*h;
       }
 
       if (Q.isFull() && freq<Q.getMinScore())
@@ -163,7 +173,7 @@ int main(int argc, char *argv[]) {
   }
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
-  Q.print();
+  //Q.print();
   Q.print_to_file(out_file_name);
   Q.free();
   ///TODO: delete random_walks, delete Queue

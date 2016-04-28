@@ -5,6 +5,27 @@
 #include <algorithm>
 #include<vector>
 
+
+#define LOG_LEVEL 2
+#define LOG_LEVEL_DEBUG 0
+#define LOG_LEVEL_INFO 1
+#define LOG_LEVEL_ERROR 2
+
+
+
+void write_log(char* msg,int level){
+  if (level>= LOG_LEVEL)
+    cout <<msg<<endl;
+}
+
+void write_info(char* msg){
+  write_log(msg,LOG_LEVEL_INFO);
+}
+
+void write_debug(char* msg){
+  write_log(msg,LOG_LEVEL_DEBUG);
+}
+
 int find_in_vector(const vector<int>& v, const int& value)
 {
   for(int i=0;i<v.size();i++)

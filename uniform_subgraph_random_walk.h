@@ -71,12 +71,15 @@ class Uniform_SubGraph_Random_Walk
     }
     //get key code for Lattice node
     std::string node_key = lNode->get_key();
+
+#ifdef PRINT_DEBUG
     cout<<"code: "<<node_key<<endl;
 
 //    cout<<"vertex indexs after getkey(): ";
 //    for(int i=0;i<lNode->_vids.size();i++)
 //      cout<<lNode->_vids[i]<<" ";
 //    cout<<endl;
+#endif // PRINT_DEBUG
 
     //push into node map
     LATTICE_NODE* node = exists(node_key);
@@ -149,7 +152,11 @@ class Uniform_SubGraph_Random_Walk
 		* \return a pointer of LATTICE_NODE.
 	*/
   LATTICE_NODE* get_random_next2(LATTICE_NODE* current){
-    cout <<"begin get_random_next2\n";
+    write_debug("begin get_random_next2");
+    if (current->_neighbors_count ==0){
+        write_info("number neighbor = 0");
+        return current;
+    }
     ///rank vertex of subgraph
     vector<pair<int,double> > vrank(current->_vids.size()); // <index in _vids, rank>
     for(int i=0;i<current->_vids.size();i++)
@@ -181,9 +188,11 @@ class Uniform_SubGraph_Random_Walk
       }
       i++;
     }
+#ifdef PRINT_DEBUG
     cout<< "removed vertex index: "<<removeIndex<<", vid: "<<removeVid<<endl;
     cout<< "replaceable vids: ";
     print_vector(*replacableVids);
+#endif // PRINT_DEBUG
 
     ///select vertex that has max rank
     double maxScore=-1;
@@ -203,12 +212,14 @@ class Uniform_SubGraph_Random_Walk
         addVid = vid;
       }
     }
-    cout<<" add vertex index: "<<maxIndex<<", vid: "<<addVid<<", score: "<<maxScore<<endl;
     ///tao next node
     vector<int> vids(current->_vids);
     vids[removeIndex]=addVid;
+#ifdef PRINT_DEBUG
+    cout<<" add vertex index: "<<maxIndex<<", vid: "<<addVid<<", score: "<<maxScore<<endl;
     cout<< "vids of next subgraph: ";
     print_vector(vids);
+#endif // PRINT_DEBUG
 
     LATTICE_NODE* lNode = create_lattice_node(vids);
     cout <<"end get_random_next2\n";
@@ -252,7 +263,7 @@ class Uniform_SubGraph_Random_Walk
 
   LATTICE_NODE* sampling_subgraph_by_Edge_Graph(double& score)
   {
-    cout <<"begin sampling_subgraph_by_Edge_Graph\n";
+    write_debug("begin sampling_subgraph_by_Edge_Graph");
     if(!_isInitialized)
       _last_node = initialize();
 
@@ -264,10 +275,10 @@ class Uniform_SubGraph_Random_Walk
     ///TODO: viet vong while o day
     while(next==NULL)
     {
-      cout <<"begin while\n";
+      write_debug("begin while");
       next = get_random_next2(_last_node);
       process_node(next);
-      cout <<"while after process_node\n";
+      write_debug("while after process_node");
       //tinh score of y
       double score_y = next->_score;
       double nbs_y = next->_neighbors_count;
@@ -282,7 +293,7 @@ class Uniform_SubGraph_Random_Walk
       next = NULL;
     }
     score = _last_node->_score;
-    cout <<"end sampling_subgraph_by_Edge_Graph\n";
+    write_debug("end sampling_subgraph_by_Edge_Graph");
     return _last_node;
   }
 
@@ -323,10 +334,13 @@ class Uniform_SubGraph_Random_Walk
           missing_edge_set.push_back(e);
         }
       }
+
+#ifdef PRINT_DEBUG
     cout<<"missing edges: "<<missing_edge_set.size()<<endl;
     for(int i=0;i<missing_edge_set.size();i++)
       cout<<"("<<missing_edge_set[i].first.first<<", "<<missing_edge_set[i].first.second<<"); ";
     cout <<endl;
+#endif // PRINT_DEBUG
 
     ///find union set of graphs that support missing edges
     vector<int> support_missing_edges_graphid;
@@ -371,7 +385,7 @@ class Uniform_SubGraph_Random_Walk
   {
     if (n->_is_processed)
       return;
-    cout <<"begin process_node\n";
+    write_info("begin process_node");
     //khoi tao mang neighbor_vids
     for(int i=0;i<n->_vids.size();i++)
     {
@@ -381,6 +395,7 @@ class Uniform_SubGraph_Random_Walk
     int dx = _pf->count_neighbor_subgraph(_graph, n->_vids,n->_nbs_vids);
     n->_neighbors_count = dx;
 
+#ifdef PRINT_DEBUG
     vector<int> vids = n->_vids; // các id cua cac dinh trong subgraph do
     vector<vector<int>* > nbs_vids = n->_nbs_vids; // chứa các neighbor của từng đỉnh
 
@@ -392,23 +407,31 @@ class Uniform_SubGraph_Random_Walk
         cout<<nbs_vids[i]->operator[](j)<<" ";
       cout<<endl;
     }
-    cout<<"make_subgraph_from_vids \n";
+  #endif // PRINT_DEBUG
+
+    write_debug("make_subgraph_from_vids");
     ///TODO: chi tao subgraph instance khi nao can, chuyen ra ben ngoai cho xu ly queue
     PAT* p = _pf->make_subgraph_from_vids(_graph,n->_vids);
+
+#ifdef PRINT_DEBUG
     cout<<"after make_subgraph_from_vids \n";
     cout<< *p <<endl;
+#endif // PRINT_DEBUG
+
     const typename PAT::CAN_CODE& cc = check_isomorphism(p);
-    cout<<"after check_isomorphism \n";
+    write_debug("after check_isomorphism");
     p->set_canonical_code(cc);
-    cout<<"after set_canonical_code \n";
+    write_debug("after set_canonical_code");
     n->_pat = p;
 
+#ifdef PRINT_DEBUG
     cout << "Current pattern:\n";
     cout << *p;
+#endif // PRINT_DEBUG
 
     compute_score(n);
     n->_is_processed=true;
-    cout <<"end process_node\n";
+    write_debug("end process_node");
   }
 
 //================================= CODE DA BI XOA ====================================
