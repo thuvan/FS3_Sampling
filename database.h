@@ -107,7 +107,7 @@ class Database {
         vat_and_freq_update(local_map, graph_no);
         if (ret_val == -1) break;
       }
-      cout << "total graph in database:" << _graph_store.size() << endl;
+      // cout << "total graph in database:" << _graph_store.size() << endl;
     }
 
     bool comp(const pair<EDGE,int>& a, const pair<EDGE,int>& b) {
@@ -144,7 +144,7 @@ class Database {
       }
 
       //test
-      cout<< "ordered edge list: "<<endl;
+      /*cout<< "ordered edge list: "<<endl;
        for(int i=0;i<_ordered_edges_list.size();i++){
           EDGE e = _ordered_edges_list[i].first;
           int index = _map_edge_to_index.find(e)->second;
@@ -155,6 +155,7 @@ class Database {
             cout<< idset->at(j)<<", ";
           cout <<endl;
       }
+      */
     }
 
     void print_ordered_edges_list(){
@@ -353,7 +354,7 @@ class Database {
       while (1) {
         pos = infile.tellg();
         safeGetline(infile, one_line);
-        cout << one_line << endl;
+        //cout << one_line << endl;
         if (one_line.length()<1) {
           _graph_store.push_back(pat);
           return -1;

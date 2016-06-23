@@ -23,7 +23,7 @@ public:
   }
 
   void print_to_file(ostream& ostr,int id){
-    ostr<<"t #"<<id<<" size= "<<subgraph->size()<<", score= "<<score<<", time= "<<insert_time<<", freq= "<<idset.size()<<", idset= [";
+    ostr<<"t #"<<id<<" size= "<<subgraph->size()<<", graphID= "<<graphID<<", time= "<<insert_time<<", freq= "<<idset.size()<<", idset= [";
     for(int i=0;i<idset.size();i++){
         if (i==0)
           ostr<<idset[i];
@@ -39,6 +39,7 @@ public:
   vector<int> idset;
   long insert_time;
   PAT* subgraph;
+  int graphID;
 };
 
 class Priority_Queue

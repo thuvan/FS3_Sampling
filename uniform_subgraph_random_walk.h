@@ -246,16 +246,18 @@ class Uniform_SubGraph_Random_Walk
       process_node(next);
       //tinh score of y
       double score_y = next->_score;
-      double nbs_y = next->_neighbors_count;
-      double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
-      double accp_probablility = accp_value<=1?accp_value:1;
-      double rd = random_uni01();
+      //double nbs_y = next->_neighbors_count;
+      //double accp_value = (nbs_x * score_y)/(nbs_y * score_x);
+      //double accp_probablility = accp_value<=1?accp_value:1;
+      //double rd = random_uni01();
       //check probability
-      if (rd <= accp_probablility){
-        _last_node = next;
-        break;
-      }
-      next = NULL;
+      //if (rd <= accp_probablility){
+      //  _last_node = next;
+
+
+      _last_node = next;
+
+      //next = NULL;
     }
     score = _last_node->_score;
     return _last_node;

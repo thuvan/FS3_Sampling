@@ -49,9 +49,9 @@ int main()
 {
   char* out_file_name ;//= "output.txt";
   DatabaseProperties config;
-  config.total_number_graph = 100;
-  config.total_number_vertex = 50;
-  config.graph_min_size = 30;
+  config.total_number_graph = 200;
+  config.total_number_vertex = 4000;
+  config.graph_min_size = 3200;
   config.graph_max_size = config.total_number_vertex;
   config.random_seed = 3571;
 
@@ -93,6 +93,8 @@ int main()
     int max_edges_count = vertex_count*(vertex_count-1)/2;
     int min_edges_count = vertex_count-1;
     int edge_count = ran(max_edges_count-min_edges_count)+min_edges_count;
+    if(edge_count < max_edges_count)
+      edge_count +=1;
 
     int* vertex_labels;
     if ( ( vertex_labels = ( int * ) calloc( vertex_count, sizeof( int ) ) )
