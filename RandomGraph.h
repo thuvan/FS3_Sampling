@@ -173,8 +173,14 @@ in Proceedings of the 22nd SIGCSE Technical Symposium.
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 using namespace std;
+
+#define SSTR( x ) static_cast< std::ostringstream & >( \
+        ( std::ostringstream() << std::dec << x ) ).str()
+
 /*** record for qsorting a graph to provide another isomorphic to it ***/
 #define RecordSize 24
 typedef struct {
@@ -202,6 +208,14 @@ void print_graph( int v,
                   int dir_flag,
                   int graph_id,
                   int* vertex_labels);
+void print_graph( int v,
+                  int e,
+                  ostream& fp,
+                  int* adj_matrix,
+                  int dir_flag,
+                  int graph_id,
+                  int* vertex_labels,
+                  string graph_dir);
 
 int unpicked_vertices_p( int* closed, int n );
 int pick_to( int* closed, int vertices );
@@ -1145,6 +1159,75 @@ void random_connected_graph( int v,
    free( adj_matrix );
 }
 
+void random_connected_graph( int v,
+                             int e,
+                             int max_wgt,
+                             int weight_flag,
+                             ostream& ostr,
+                             int graph_id,
+                             int* vertex_labels,
+                             string graph_dir)
+{
+   int i, j, count, index, *adj_matrix, *tree;
+
+   if ( ( adj_matrix = ( int * ) calloc( v * v, sizeof( int ) ) )
+        == NULL ) {
+      printf( "Not enough room for this size graph\n" );
+      return;
+   }
+
+   if ( ( tree = ( int * ) calloc( v, sizeof( int ) ) ) == NULL ) {
+      printf( "Not enough room for this size graph\n" );
+      free( adj_matrix );
+      return;
+   }
+
+   printf( "\n\tBeginning construction of graph.\n" );
+
+   /*  Generate a random permutation in the array tree. */
+   init_array( tree, v );
+   permute( tree, v );
+
+   /*  Next generate a random spanning tree.
+       The algorithm is:
+
+         Assume that vertices tree[ 0 ],...,tree[ i - 1 ] are in
+         the tree.  Add an edge incident on tree[ i ]
+         and a random vertex in the set {tree[ 0 ],...,tree[ i - 1 ]}.
+    */
+
+   for ( i = 1; i < v; i++ ) {
+      j = ran( i );
+      adj_matrix[ tree[ i ] * v + tree[ j ] ] =
+         adj_matrix[ tree[ j ] * v + tree[ i ] ] =
+         weight_flag ? 1 + ran( max_wgt ) : 1;
+   }
+
+   /* Add additional random edges until achieving at least desired number */
+
+   for ( count = v - 1; count < e; ) {
+      i = ran( v );
+      j = ran( v );
+
+      if ( i == j )
+         continue;
+
+      if ( i > j )
+         swap( &i, &j );
+
+      index = i * v + j;
+      if ( !adj_matrix[ index ] ) {
+         adj_matrix[ index ] = weight_flag ? 1 + ran( max_wgt ) : 1;
+         count++;
+      }
+   }
+   printf("begin write to file graph %d",graph_id);
+   print_graph(v, count, ostr, adj_matrix, Undirected ,graph_id,vertex_labels,graph_dir);
+
+   free( tree );
+   free( adj_matrix );
+}
+
 /* This function generates a random connected simple graph with
    v vertices and Max(v-1,e) edges.  The graph can be weighted
    (weight_flag == 1) or unweighted (weight_flag != 1). If
@@ -1716,6 +1799,71 @@ void print_graph( int v,
                ostr<<"e "<< i-1 <<" "<< j-1 <<" "<< adj_matrix[ index ] <<"\r";
          }
    }
+}
+
+void print_graph( int v,
+                  int e,
+                  std::ostream& ostr,
+                  int* adj_matrix,
+                  int dir_flag,
+                  int graph_id,
+                  int* vertex_labels,
+                  string graph_dir)
+{
+    string graphFileName = graph_dir+"\\"+SSTR(graph_id)+".txt";
+    std::ofstream gOstr;
+    char* out_file_name = (char*) graphFileName.c_str();
+    gOstr.open(out_file_name);
+
+   int i, j, index;
+   ostr<< "t # "<<graph_id<<"\n";
+
+   gOstr<<"*verties "<<v<<"\n";
+   for ( i = 0; i < v; i++ ){
+        gOstr<<vertex_labels[i]<<"\n";
+    }
+    gOstr<<"*edges "<<"\n";
+
+   if ( !dir_flag ){
+      ///print vertexes
+      for ( i = 0; i < v; i++ ){
+        ostr<<"v " <<i <<" "<< vertex_labels[i]<<"\n";
+      }
+      ///print edges
+      for ( i = 1; i < v; i++ )
+         for ( j = i + 1; j <= v; j++ ) {
+            index = ( i - 1 ) * v + j - 1;
+            if ( adj_matrix[ index ] )
+               ostr<<"e "<< i-1 <<" "<< j-1 <<" "<< adj_matrix[ index ] <<"\n";
+         }
+      //write to graph file
+      for ( i = 1; i < v; i++ )
+         for ( j = i + 1; j <= v; j++ ) {
+            index = ( i - 1 ) * v + j - 1;
+            if ( adj_matrix[ index ] )
+               gOstr<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+         }
+   }else{
+      ///print vertexes
+      for ( i = 0; i <= v; i++ ){
+        ostr<<"v " <<i <<" "<< vertex_labels[i]<<"\n";
+      }
+      ///edges
+      for ( i = 1; i <= v; i++ )
+         for ( j = 1; j <= v; j++ ) {
+            index = ( i - 1 ) * v + j - 1;
+            if ( adj_matrix[ index ] )
+               ostr<<"e "<< i-1 <<" "<< j-1 <<" "<< adj_matrix[ index ] <<"\n";
+         }
+      //write to graph file
+      for ( i = 1; i <= v; i++ )
+         for ( j = 1; j <= v; j++ ) {
+            index = ( i - 1 ) * v + j - 1;
+            if ( adj_matrix[ index ] )
+               gOstr<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+         }
+   }
+   gOstr.close();
 }
 
 //void print_graph( int v,

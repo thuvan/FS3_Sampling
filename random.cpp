@@ -1,8 +1,8 @@
 #include "random.h"
 using namespace std;
 
-//static boost::mt19937 generator(static_cast<unsigned> (std::time(0)));
-static boost::mt19937 generator(static_cast<unsigned> (1));
+static boost::mt19937 generator(static_cast<unsigned> (std::time(0)));
+//static boost::mt19937 generator(static_cast<unsigned> (1)); // seed
 
 /*! \fn double random_uni01()
  		*  \brief A function to generate a uniform random number between 0 and 1.

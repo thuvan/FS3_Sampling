@@ -4,7 +4,7 @@
 #include "uniform_subgraph_random_walk.h"
 #include "vectorUtility.h"
 #include "Priority_Queue.h"
-
+#include <time.h>
 
 //#define PRINT_DEBUG
 
@@ -16,6 +16,7 @@ int subgraph_size;
 int uniq_pat_count;
 int max_iter;
 int top_k = 3;
+double stop_time=10; //time in second
 
 typedef ExPattern<int, int> PAT;
 typedef Uniform_SubGraph_Random_Walk<PAT> RANDOM_WALK;
@@ -85,13 +86,13 @@ int main(int argc, char *argv[]) {
   //datafile="dataset\\GRAPH_int_toy3.txt";
 
   datafile="dataset\\graphdata_20000712-20000712_total339.txt";
-  out_file_name = "dataset\\graphdata_20000712-20000712_total339_100_5.KFSAM.output";
+  out_file_name = "dataset\\l339_20000_5.KFSAM.output";
 
   //datafile ="dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt";
   //out_file_name= "dataset\\database_size5_v5_vMin4.KFSAM.output";
 
   subgraph_size= 5;
-  max_iter=100;
+  max_iter=20000;
   top_k=100;
 
   Database<PAT>* database;
@@ -123,7 +124,13 @@ int main(int argc, char *argv[]) {
   Priority_Queue Q(top_k*2);
   int similar=0;
   double maxTime =0;
-  while (cur_iter<=max_iter){
+  //while (cur_iter<=max_iter){
+  time_t startTime;
+  time(&startTime);
+  double seconds=0;
+
+  //while (cur_iter<=max_iter){
+  do{
       if(similar == top_k*8)
       {
         cout<<"stop";
@@ -195,8 +202,11 @@ int main(int argc, char *argv[]) {
         Q.push(qItem);
         similar = 0;
       }
-      //}
-  }
+    time_t now;
+    time(&now);
+    seconds = difftime(now,startTime);
+  }while(seconds<stop_time);
+
   cout<<"==============================="<<endl;
   cout<<"SAMPLING RESULT"<<endl;
   //Q.print();

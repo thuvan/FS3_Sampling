@@ -7,8 +7,6 @@
 
 using namespace std;
 
-#define SSTR( x ) static_cast< std::ostringstream & >( \
-        ( std::ostringstream() << std::dec << x ) ).str()
 
 typedef struct database_properties {
    int      total_number_graph;
@@ -19,14 +17,24 @@ typedef struct database_properties {
    int      random_seed;
 
    void get_file_name(string& fileName){
-     fileName = "database_size"+SSTR(total_number_graph)
+     fileName = "DS1_database_size"+SSTR(total_number_graph)
                           +"_v"+SSTR(total_number_vertex)
                           +"_vMin"+SSTR(graph_min_size)
                           +"_vMax"+SSTR(graph_max_size)
                           +"_seed"+SSTR(random_seed)
                           +".txt";
    }
+//   void get_graphfile_dir(string& fileName){
+//     fileName = "DS1_database_size"+SSTR(total_number_graph)
+//                          +"_v"+SSTR(total_number_vertex)
+//                          +"_vMin"+SSTR(graph_min_size)
+//                          +"_vMax"+SSTR(graph_max_size)
+//                          +"_seed"+SSTR(random_seed);
+//   }
 } DatabaseProperties;
+
+string dataset_dir="dataset_new\\50_20";
+string graph_dir;
 
 void random_vertex_label(int v[],int n,int maxLabel)
 {
@@ -49,16 +57,20 @@ int main()
 {
   char* out_file_name ;//= "output.txt";
   DatabaseProperties config;
-  config.total_number_graph = 200;
-  config.total_number_vertex = 4000;
-  config.graph_min_size = 3200;
+  config.total_number_graph = 50;
+  config.total_number_vertex = 22;
+  config.graph_min_size = 15;
   config.graph_max_size = config.total_number_vertex;
   config.random_seed = 3571;
 
 
   string fileName;
   config.get_file_name(fileName) ;
-  fileName = "dataset\\"+fileName;
+  //config.get_graphfile_dir(graph_dir);
+  //fileName = "dataset\\"+fileName;
+  fileName = dataset_dir+ "\\"+fileName;
+  graph_dir = dataset_dir;//+"\\"+graph_dir;
+
   out_file_name = (char*) fileName.c_str();
   //generate file name
   //out_file_name = strcat("size",ita())
@@ -109,7 +121,8 @@ int main()
                               true,//weighted_p,
                               ostr, //menu -> outfiles.outfile1
                               i,
-                              vertex_labels
+                              vertex_labels,
+                              graph_dir
                             );
     free(vertex_labels);
   }
