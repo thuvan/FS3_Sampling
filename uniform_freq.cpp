@@ -85,13 +85,13 @@ int main(int argc, char *argv[]) {
   //datafile="dataset\\GRAPH_int_toy3.txt";
 
   datafile="dataset\\graphdata_20000712-20000712_total339.txt";
-  out_file_name = "dataset\\graphdata_20000712-20000712_total339_100_5.KFSAM.output";
+  out_file_name = "dataset\\graphdata_20000712-20000712_total339_20000_6.KFSAM.output";
 
   //datafile ="dataset\\database_size5_v5_vMin4_vMax5_seed3571.txt";
   //out_file_name= "dataset\\database_size5_v5_vMin4.KFSAM.output";
 
-  subgraph_size= 5;
-  max_iter=100;
+  subgraph_size= 6;
+  max_iter=20000;
   top_k=100;
 
   Database<PAT>* database;
