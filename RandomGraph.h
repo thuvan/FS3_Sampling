@@ -1810,19 +1810,24 @@ void print_graph( int v,
                   int* vertex_labels,
                   string graph_dir)
 {
+    string graphFileNamePajekNet= graph_dir+"\\"+SSTR(graph_id)+".PajekNet";
     string graphFileName = graph_dir+"\\"+SSTR(graph_id)+".txt";
-    std::ofstream gOstr;
+    std::ofstream osGraph;
     char* out_file_name = (char*) graphFileName.c_str();
-    gOstr.open(out_file_name);
+    osGraph.open(out_file_name);
+
+    char* out_file_name_PajekNet = (char*) graphFileNamePajekNet.c_str();
+    std::ofstream gOstr_PajekNet;
+    gOstr_PajekNet.open(out_file_name_PajekNet);
 
    int i, j, index;
    ostr<< "t # "<<graph_id<<"\n";
 
-   gOstr<<"*verties "<<v<<"\n";
+   gOstr_PajekNet<<"*verties "<<v<<"\n";
    for ( i = 0; i < v; i++ ){
-        gOstr<<vertex_labels[i]<<"\n";
+        gOstr_PajekNet<<vertex_labels[i]<<"\n";
     }
-    gOstr<<"*edges "<<"\n";
+    gOstr_PajekNet<<"*edges "<<"\n";
 
    if ( !dir_flag ){
       ///print vertexes
@@ -1840,8 +1845,10 @@ void print_graph( int v,
       for ( i = 1; i < v; i++ )
          for ( j = i + 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
-            if ( adj_matrix[ index ] )
-               gOstr<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+            if ( adj_matrix[ index ] ){
+               gOstr_PajekNet<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+               osGraph<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+            }
          }
    }else{
       ///print vertexes
@@ -1859,11 +1866,14 @@ void print_graph( int v,
       for ( i = 1; i <= v; i++ )
          for ( j = 1; j <= v; j++ ) {
             index = ( i - 1 ) * v + j - 1;
-            if ( adj_matrix[ index ] )
-               gOstr<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+            if ( adj_matrix[ index ] ){
+               gOstr_PajekNet<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+               osGraph<< vertex_labels[i-1] <<" "<< vertex_labels[j-1]<<"\n";
+            }
          }
    }
-   gOstr.close();
+   gOstr_PajekNet.close();
+   osGraph.close();
 }
 
 //void print_graph( int v,

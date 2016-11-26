@@ -36,7 +36,7 @@ typedef struct database_properties {
    }
 } DatabaseProperties;
 
-string dataset_dir="dataset_new\\50_20";
+string dataset_dir="dataset_new";
 string graph_dir;
 
 int createFolder(const char * path)
