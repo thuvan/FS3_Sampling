@@ -4,9 +4,12 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <windows.h>
+
+//#include <boost/filesystem.hpp>
+
 
 using namespace std;
-
 
 typedef struct database_properties {
    int      total_number_graph;
@@ -24,17 +27,25 @@ typedef struct database_properties {
                           +"_seed"+SSTR(random_seed)
                           +".txt";
    }
-//   void get_graphfile_dir(string& fileName){
-//     fileName = "DS1_database_size"+SSTR(total_number_graph)
-//                          +"_v"+SSTR(total_number_vertex)
-//                          +"_vMin"+SSTR(graph_min_size)
-//                          +"_vMax"+SSTR(graph_max_size)
-//                          +"_seed"+SSTR(random_seed);
-//   }
+   void get_graphfile_dir(string& fileName){
+     fileName = "DS1_database_size"+SSTR(total_number_graph)
+                          +"_v"+SSTR(total_number_vertex)
+                          +"_vMin"+SSTR(graph_min_size)
+                          +"_vMax"+SSTR(graph_max_size)
+                          +"_seed"+SSTR(random_seed);
+   }
 } DatabaseProperties;
 
 string dataset_dir="dataset_new\\50_20";
 string graph_dir;
+
+int createFolder(const char * path)
+{
+    if (CreateDirectory(path, NULL) || ERROR_ALREADY_EXISTS == GetLastError())
+      return 1;
+    else
+      return 0;
+}
 
 void random_vertex_label(int v[],int n,int maxLabel)
 {
@@ -53,6 +64,8 @@ void random_vertex_label(int v[],int n,int maxLabel)
       i++;
   }
 }
+
+
 int main()
 {
   char* out_file_name ;//= "output.txt";
@@ -66,12 +79,20 @@ int main()
 
   string fileName;
   config.get_file_name(fileName) ;
-  //config.get_graphfile_dir(graph_dir);
+  config.get_graphfile_dir(graph_dir);
   //fileName = "dataset\\"+fileName;
   fileName = dataset_dir+ "\\"+fileName;
-  graph_dir = dataset_dir;//+"\\"+graph_dir;
+  graph_dir = dataset_dir+"\\"+graph_dir;
 
   out_file_name = (char*) fileName.c_str();
+
+  const char* path = graph_dir.c_str();
+  if (!createFolder(path))
+  {
+    cout<<"Cannot create directory: "<<graph_dir;
+    return 1;
+  }
+
   //generate file name
   //out_file_name = strcat("size",ita())
 
